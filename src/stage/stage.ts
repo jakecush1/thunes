@@ -12,12 +12,13 @@ import * as THREE from 'three';
 import { CAMERA_LIMITS } from '../config';
 import type { AppState, CameraPose, CaptureOptions, Stage, StageDebugInfo, StageDeps } from '../types';
 import { createEnvironmentSystem } from './environment';
+import { createPlacesSystem } from './places';
 import { bufferSize, qualitySettings } from './quality';
 import { createStrobeSystem } from './strobe';
 import type { FrameContext, StageContext, StageSystem, StageSystemFactory } from './system';
 
 /** The systems every stage has, in update order. */
-export const CORE_SYSTEMS: readonly StageSystemFactory[] = [createEnvironmentSystem, createStrobeSystem];
+export const CORE_SYSTEMS: readonly StageSystemFactory[] = [createEnvironmentSystem, createPlacesSystem, createStrobeSystem];
 
 export interface StageOptions {
   /** Extra systems, created after the core systems in the given order. */

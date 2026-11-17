@@ -32,14 +32,26 @@ describe('colour helpers', () => {
 });
 
 describe('background presets', () => {
-  it('has about 15 presets with unique ids and the expected mix of kinds', () => {
-    expect(BACKGROUNDS.length).toBe(15);
+  it('has about 19 presets with unique ids and the expected mix of kinds', () => {
+    expect(BACKGROUNDS.length).toBe(19);
     expect(new Set(BACKGROUNDS.map((p) => p.id)).size).toBe(BACKGROUNDS.length);
     expect(new Set(BACKGROUNDS.map((p) => p.name)).size).toBe(BACKGROUNDS.length);
     const count = (kind: string) => BACKGROUNDS.filter((p) => p.kind === kind).length;
     expect(count('gradient')).toBe(8);
     expect(count('sky')).toBe(4);
     expect(count('solid')).toBe(3);
+    expect(count('place')).toBe(4);
+  });
+  it('gives every place a sky, its scenery and (except the boat) a natural floor', () => {
+    const places = BACKGROUNDS.filter((p) => p.kind === 'place');
+    expect(places.map((p) => p.place).sort()).toEqual(['city', 'desert', 'forest', 'ocean']);
+    for (const p of places) {
+      expect(p.sky).toBeDefined();
+      expect(p.ground).toBeDefined();
+      if (p.place === 'ocean') expect(p.naturalFloor).toBeUndefined();
+      else expect(['grass', 'concrete', 'sand']).toContain(p.naturalFloor);
+    }
+    expect(BACKGROUNDS.filter((p) => p.kind !== 'place').every((p) => p.place === undefined)).toBe(true);
   });
   it('includes the default from config and never uses the reserved id', () => {
     expect(BACKGROUNDS.some((p) => p.id === SCENE_DEFAULTS.background)).toBe(true);

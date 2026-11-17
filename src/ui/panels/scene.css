@@ -2,6 +2,11 @@
 .scene .subhead.scene__group { margin: var(--sp-1) 0 2px; }
 .scene .subhead.scene__group:first-of-type { margin-top: 0; }
 
+/* Eight floor styles: two rows of four. */
+.scene__floor-style.seg { grid-auto-flow: row; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.scene__floor-style.seg span { padding: 0 4px; font-size: var(--fs-sm); }
+.scene__floor-style[hidden], .scene__deck-note[hidden] { display: none; }
+.scene__deck-note { color: var(--text-2); font-size: var(--fs-sm); }
 .scene__floor-row { flex-wrap: wrap; row-gap: var(--sp-1); }
 .scene__floor-row[hidden] { display: none; }
 .scene__floor-colours { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }

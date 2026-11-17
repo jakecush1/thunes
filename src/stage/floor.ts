@@ -136,7 +136,8 @@ vec3 concreteColor(vec2 p) {
   c *= 1.0 - 0.11 * smoothstep(0.6, 0.8, fbm(p * 0.17 + 40.0));
   c = mix(c, c * 0.55, gridMask((p + 1.5) / 3.0, 0.004) * 0.9);
   float crack = abs(fbm(p * 0.9 + 11.0) - 0.5);
-  c *= 1.0 - 0.35 * smoothstep(0.012, 0.0, crack) * detail(p, 8.0);
+  float cracked = smoothstep(0.56, 0.7, fbm(p * 0.11 + 3.0));
+  c *= 1.0 - 0.3 * smoothstep(0.006, 0.0, crack) * cracked * detail(p, 8.0);
   return c;
 }
 

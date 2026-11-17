@@ -70,6 +70,8 @@ export interface BackgroundPreset {
   stops: readonly GradientStop[];
   /** Which procedural sky to draw (kinds 'sky' and 'place'). */
   sky?: SkyKind;
+  /** 'clouds' sky only: 0 = clear … 1 = overcast. */
+  cloudCover?: number;
   /** Which scenery surrounds the stage (kind === 'place'). */
   place?: PlaceKind;
   /** The floor that belongs to this place; the UI switches to it when the place is chosen. */
@@ -111,6 +113,7 @@ interface PresetInit {
   sky?: SkyKind;
   place?: PlaceKind;
   naturalFloor?: FloorStyle;
+  cloudCover?: number;
   ground?: string;
   swatch?: string;
   fog: string;
@@ -129,6 +132,7 @@ function preset(init: PresetInit): BackgroundPreset {
     ...(init.sky ? { sky: init.sky } : {}),
     ...(init.place ? { place: init.place } : {}),
     ...(init.naturalFloor ? { naturalFloor: init.naturalFloor } : {}),
+    ...(init.cloudCover !== undefined ? { cloudCover: init.cloudCover } : {}),
     ...(init.ground ? { ground: init.ground } : {}),
     fog: init.fog,
     floor: init.floor,
@@ -352,6 +356,7 @@ export const BACKGROUNDS: readonly BackgroundPreset[] = [
     kind: 'place',
     place: 'forest',
     sky: 'clouds',
+    cloudCover: 0.62,
     naturalFloor: 'grass',
     stops: [
       [0, '#6fb0e6'],
@@ -388,6 +393,7 @@ export const BACKGROUNDS: readonly BackgroundPreset[] = [
     kind: 'place',
     place: 'desert',
     sky: 'clouds',
+    cloudCover: 0.3,
     naturalFloor: 'sand',
     stops: [
       [0, '#5fa3df'],
@@ -406,6 +412,7 @@ export const BACKGROUNDS: readonly BackgroundPreset[] = [
     kind: 'place',
     place: 'ocean',
     sky: 'clouds',
+    cloudCover: 0.45,
     stops: [
       [0, '#5fa3df'],
       [1, '#1f6f93'],

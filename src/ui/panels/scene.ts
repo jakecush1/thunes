@@ -104,7 +104,11 @@ export function mountScene(ctx: UiContext, host: HTMLElement): PanelHandle {
         options: presetsOfKind(BACKGROUNDS, group.kind).map((p) => ({ value: p.id, name: p.name, swatch: p.swatch })),
         value: scene().background,
         custom: group.kind === 'solid' ? { label: 'Custom backdrop colour', color: scene().backgroundColor } : undefined,
-        onChange: (value) => store.updateScene({ background: value }),
+        onChange: (value) => {
+          // A place brings its own ground: grass in the forest, concrete in the city, sand in the desert.
+          const natural = getBackground(value).naturalFloor;
+          store.updateScene(natural ? { background: value, floorStyle: natural, floorColor: null } : { background: value });
+        },
         onCustom: (color, transient) => store.updateScene({ background: CUSTOM_BACKGROUND_ID, backgroundColor: color }, { transient }),
         onCustomCommit: () => store.commit(),
       }),
@@ -146,8 +150,11 @@ export function mountScene(ctx: UiContext, host: HTMLElement): PanelHandle {
   const autoChipFace = autoChip?.querySelector<HTMLElement>('.swatch__chip') ?? null;
   autoChipFace?.append(h('span', { class: 'scene__auto-mark', attrs: { 'aria-hidden': 'true' }, text: 'A' }));
   const floorColorRow = h('div', { class: 'field-row scene__floor-row' }, floorColorLabel, floorColors.el);
+  floorStyle.el.classList.add('scene__floor-style');
+  const deckNote = h('p', { class: 'scene__deck-note', text: 'On the boat, the deck is the floor.' });
+  deckNote.hidden = true;
   const floor = section('Floor');
-  floor.append(floorStyle.el, floorColorRow);
+  floor.append(deckNote, floorStyle.el, floorColorRow);
 
   // ── Light and air ──
   const brightness = slider('brightness', 'Brightness');
@@ -271,7 +278,11 @@ export function mountScene(ctx: UiContext, host: HTMLElement): PanelHandle {
         floorStyle.set(s.floorStyle);
         floorColors.set(s.floorColor ?? AUTO_FLOOR);
         floorColorLabel.textContent = FLOOR_COLOR_LABELS[s.floorStyle];
-        floorColorRow.hidden = s.floorStyle === 'none';
+        // On the boat the deck replaces the floor, so the floor controls do nothing there.
+        const onDeck = !custom && preset.place === 'ocean';
+        deckNote.hidden = !onDeck;
+        floorStyle.el.hidden = onDeck;
+        floorColorRow.hidden = onDeck || s.floorStyle === 'none';
         autoChipFace?.style.setProperty('--sw', custom ? '#f28a2e' : preset.floor.line);
         for (const [key, handle] of sliders) handle.set(s[key]);
         strobeSync.set(s.strobeSync);

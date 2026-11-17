@@ -19,7 +19,8 @@ npm run preview    # serve the production bundle
 - **Dances.** Each dancer's dance is chosen independently of its character. Any dance plays on any character.
 - **Per-dancer controls.** Position, rotation, scale, speed, phase offset, loop trim, mirror, shine, metal, tint, head/hand/foot size, shake, and a vertex warp effect.
 - **Music.** The drawer at the bottom left lists the songs. Dancers lock to the song's beat (this can be switched off).
-- **Scene.** Fifteen backdrops plus a custom colour, four floor styles, brightness, exposure, fog, strobe and an auto-orbiting camera.
+- **Places.** Four settings with 3D scenery around the stage: a forest, a city street at sunset, a desert with dunes, and the deck of a sailboat on the ocean.
+- **Scene.** Fifteen more backdrops plus a custom colour, eight floor styles (grid, checker, tiles, none, grass, concrete, dirt, sand), brightness, exposure, fog, strobe and an auto-orbiting camera.
 - **Look / Grab / Both.** Choose whether dragging orbits the camera, moves dancers, or both.
 - **Save and share.** Scenes are saved in this browser. A share link carries the whole scene in the URL, so no server is needed.
 - **Undo and redo** for everything that changes the scene.
@@ -72,7 +73,7 @@ src/
   dances/               the dance format, its compiler and the placeholder dances
   audio/                audio engine, beat clock, synthesiser, placeholder songs, tempo detection
   assets/               registry, model loaders, drop-in folder discovery, browser uploads
-  stage/                renderer, backdrops, floor, lights, strobe, dancers, interaction, thumbnails
+  stage/                renderer, backdrops, floor, scenery (places.ts), lights, strobe, dancers, interaction, thumbnails
   ui/                   design system, controls, shell and panels
 lab/                    dev-only pages for inspecting one subsystem at a time (/lab/<name>.html)
 scripts/e2e/            browser checks driven through the installed Google Chrome
@@ -99,6 +100,7 @@ The look follows the band's own material: their hand-painted logo, the fonts of 
 
 - The Thunes logo (`src/ui/brand/thunes-logo.webp`) belongs to The Thunes.
 - Oswald and Lexend (`src/ui/fonts/`) are licensed under the SIL Open Font License 1.1; the licence texts are next to the font files.
+- The ocean is three.js' `Water` object with its `waternormals.jpg` texture (`src/stage/textures/`), both from the MIT-licensed three.js examples. All other scenery and floor textures are generated in code.
 
 ## Known limits
 

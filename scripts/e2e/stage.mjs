@@ -56,7 +56,7 @@ async function buildSheets(page) {
 
   const floorTiles = [];
   for (const background of ['club', 'bubblegum', 'white', 'black']) {
-    for (const floorStyle of ['grid', 'checker', 'tiles', 'none']) {
+    for (const floorStyle of ['grid', 'checker', 'tiles', 'none', 'grass', 'concrete', 'dirt', 'sand']) {
       floorTiles.push({ label: `${background} / ${floorStyle}`, scene: { background, floorStyle } });
     }
   }
@@ -118,7 +118,7 @@ try {
       checks.ok(stats.stddev > 2 && stats.distinctColors > 16, `background ${id} renders`, JSON.stringify(stats));
     }
     for (const background of ['club', 'white', 'black']) {
-      for (const floorStyle of ['grid', 'checker', 'tiles', 'none']) {
+      for (const floorStyle of ['grid', 'checker', 'tiles', 'none', 'grass', 'concrete', 'dirt', 'sand']) {
         await page.evaluate((patch) => globalThis.__thunes.setScene(patch), { background, floorStyle });
         await frames(page, 2);
         const stats = await imageStats(page, await page.screenshot());

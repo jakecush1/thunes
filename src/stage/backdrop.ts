@@ -64,6 +64,9 @@ void main() {
 }
 `;
 
+/** Cloud cover of the daytime sky when a preset does not set one (0 = clear … 1 = overcast). */
+const DEFAULT_CLOUD_COVER = 0.84;
+
 const SKY_TYPES: Record<SkyKind, number> = { stars: 0, sunset: 1, clouds: 2, aurora: 3 };
 
 const SKY_FRAGMENT = /* glsl */ `
@@ -72,6 +75,7 @@ uniform float uGain;
 uniform float uVeil;
 uniform vec3 uHorizon;
 uniform vec3 uGround;
+uniform float uCloudCover;
 varying vec3 vDir;
 ${DITHER}
 
@@ -161,7 +165,8 @@ vec3 sky(vec3 d) {
   col += rgb(255, 244, 214) * (0.25 * pow(sd, 24.0) + 0.6 * pow(sd, 700.0));
   vec2 p = d.xz / (el + 0.14) * 0.9 + uTime * vec2(0.012, 0.004);
   float n = fbm(p);
-  float cover = smoothstep(0.46, 0.74, n) * smoothstep(0.015, 0.2, el);
+  float edge = mix(0.78, 0.4, uCloudCover);
+  float cover = smoothstep(edge, edge + 0.28, n) * smoothstep(0.015, 0.2, el);
   float lit = clamp((n - fbm(p + sun.xz * 0.22)) * 3.0 + 0.6, 0.0, 1.0);
   vec3 cloudColor = mix(rgb(188, 204, 226), rgb(255, 255, 255), lit);
   col = mix(col, cloudColor, cover * 0.92);
@@ -252,6 +257,7 @@ export function createBackdrop(): Backdrop {
     uVeil: { value: 0 },
     uHorizon: { value: new THREE.Vector3() },
     uGround: { value: new THREE.Vector3() },
+    uCloudCover: { value: DEFAULT_CLOUD_COVER },
   };
   const skyMaterials = new Map<SkyKind, THREE.ShaderMaterial>();
   const skyMesh = new THREE.Mesh(sphere);
@@ -296,6 +302,7 @@ export function createBackdrop(): Backdrop {
         skyMesh.material = skyMaterial(preset.sky!);
         setVector(skyUniforms.uHorizon.value, preset.fog);
         setVector(skyUniforms.uGround.value, preset.ground ?? preset.fog);
+        skyUniforms.uCloudCover.value = preset.cloudCover ?? DEFAULT_CLOUD_COVER;
       } else {
         const stops = preset.stops;
         for (let i = 0; i < MAX_STOPS; i++) {
