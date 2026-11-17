@@ -1,0 +1,18 @@
+Textures of the city place. All are from ambientCG (https://ambientcg.com),
+released under the Creative Commons CC0 1.0 Universal licence (public domain).
+The 1K JPG sets were resized and recompressed; nothing else was changed unless noted.
+
+facade-brick.jpg, facade-brick-n.jpg   Facade018A        https://ambientcg.com/a/Facade018A        CC0
+facade-stone.jpg, facade-stone-n.jpg   Facade019A        https://ambientcg.com/a/Facade019A        CC0
+facade-pier.jpg, facade-pier-n.jpg     Facade020A        https://ambientcg.com/a/Facade020A        CC0
+facade-grid-m.jpg                      Facade018A        https://ambientcg.com/a/Facade018A        CC0  (metalness; shared by the three facades above)
+facade-band.jpg, -n.jpg, -m.jpg        Facade006         https://ambientcg.com/a/Facade006         CC0
+facade-glass.jpg, -n.jpg, -m.jpg       Facade001         https://ambientcg.com/a/Facade001         CC0
+asphalt.jpg, asphalt-n.jpg             Asphalt031        https://ambientcg.com/a/Asphalt031        CC0
+paving.jpg, paving-n.jpg               PavingStones128   https://ambientcg.com/a/PavingStones128   CC0
+concrete.jpg                           Concrete034       https://ambientcg.com/a/Concrete034       CC0
+decals-color.jpg, decals-alpha.jpg     2 x 2 atlas (colour and opacity) packed from:
+                                       ManholeCover003   https://ambientcg.com/a/ManholeCover003   CC0
+                                       ManholeCover011   https://ambientcg.com/a/ManholeCover011   CC0
+                                       Grate002          https://ambientcg.com/a/Grate002          CC0
+                                       AsphaltDamage001  https://ambientcg.com/a/AsphaltDamage001  CC0

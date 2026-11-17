@@ -3,7 +3,7 @@
  * strobe warning wording.
  */
 import type { BackgroundKind, BackgroundPreset } from '../../../stage/backgrounds';
-import type { FloorStyle, SceneSettings } from '../../../types';
+import type { CameraPose, FloorStyle, SceneSettings } from '../../../types';
 
 export const BACKDROP_GROUPS: readonly { kind: BackgroundKind; label: string }[] = [
   { kind: 'place', label: 'Places' },
@@ -11,6 +11,18 @@ export const BACKDROP_GROUPS: readonly { kind: BackgroundKind; label: string }[]
   { kind: 'sky', label: 'Skies' },
   { kind: 'solid', label: 'Solids' },
 ];
+
+/**
+ * A backdrop's suggested camera pose, moved back on tall (portrait) screens so
+ * the same width of scene still fits. `aspect` is width / height.
+ */
+export function fitView(view: CameraPose, aspect: number): CameraPose {
+  const factor = Math.max(1, 0.8 / Math.max(0.2, aspect));
+  if (factor === 1) return view;
+  const [tx, ty, tz] = view.target;
+  const [px, py, pz] = view.position;
+  return { position: [tx + (px - tx) * factor, ty + (py - ty) * factor, tz + (pz - tz) * factor], target: view.target };
+}
 
 /** Presets of one kind, in catalogue order. */
 export function presetsOfKind(presets: readonly BackgroundPreset[], kind: BackgroundKind): BackgroundPreset[] {

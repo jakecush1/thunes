@@ -14,7 +14,7 @@
  * pattern are drawn exactly in these colours at exposure 1 (they are graphic
  * elements and bypass tone mapping).
  */
-import type { FloorStyle, SceneSettings } from '../types';
+import type { CameraPose, FloorStyle, SceneSettings } from '../types';
 import { luminance, mixHex, normalizeHex } from './color';
 
 export type BackgroundKind = 'gradient' | 'sky' | 'solid' | 'place';
@@ -76,6 +76,8 @@ export interface BackgroundPreset {
   place?: PlaceKind;
   /** The floor that belongs to this place; the UI switches to it when the place is chosen. */
   naturalFloor?: FloorStyle;
+  /** Where the camera should stand when this backdrop is chosen (for a landscape screen). */
+  view?: CameraPose;
   /** Sky only: colour of the ground below the horizon. */
   ground?: string;
   /** Fog colour = the colour of the horizon. */
@@ -113,6 +115,7 @@ interface PresetInit {
   sky?: SkyKind;
   place?: PlaceKind;
   naturalFloor?: FloorStyle;
+  view?: CameraPose;
   cloudCover?: number;
   ground?: string;
   swatch?: string;
@@ -133,6 +136,7 @@ function preset(init: PresetInit): BackgroundPreset {
     ...(init.place ? { place: init.place } : {}),
     ...(init.naturalFloor ? { naturalFloor: init.naturalFloor } : {}),
     ...(init.cloudCover !== undefined ? { cloudCover: init.cloudCover } : {}),
+    ...(init.view ? { view: init.view } : {}),
     ...(init.ground ? { ground: init.ground } : {}),
     fog: init.fog,
     floor: init.floor,
@@ -413,6 +417,8 @@ export const BACKGROUNDS: readonly BackgroundPreset[] = [
     place: 'ocean',
     sky: 'clouds',
     cloudCover: 0.45,
+    // Side-on from the port side, far enough back to hold the whole boat, mast included.
+    view: { position: [0.4, 5.6, 23.5], target: [-0.5, 3, 0] },
     stops: [
       [0, '#5fa3df'],
       [1, '#1f6f93'],

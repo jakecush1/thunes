@@ -9,7 +9,7 @@
  * a loaded or shared scene with a strobe shows a non-blocking prompt instead.
  */
 import './scene.css';
-import { SCENE_DEFAULTS, SCENE_FIELDS } from '../../config';
+import { DEFAULT_CAMERA, SCENE_DEFAULTS, SCENE_FIELDS } from '../../config';
 import { BACKGROUNDS, CUSTOM_BACKGROUND_ID, getBackground } from '../../stage/backgrounds';
 import type { FloorStyle, SceneSettings } from '../../types';
 import { createButton } from '../components/button';
@@ -23,6 +23,7 @@ import { createScope, h, icon, uniqueId } from '../dom';
 import {
   AUTO_FLOOR,
   BACKDROP_GROUPS,
+  fitView,
   FLOOR_COLOR_LABELS,
   FLOOR_COLORS,
   FLOOR_LABELS,
@@ -106,8 +107,15 @@ export function mountScene(ctx: UiContext, host: HTMLElement): PanelHandle {
         custom: group.kind === 'solid' ? { label: 'Custom backdrop colour', color: scene().backgroundColor } : undefined,
         onChange: (value) => {
           // A place brings its own ground: grass in the forest, concrete in the city, sand in the desert.
-          const natural = getBackground(value).naturalFloor;
+          const leaving = getBackground(scene().background);
+          const chosen = getBackground(value);
+          const natural = chosen.naturalFloor;
           store.updateScene(natural ? { background: value, floorStyle: natural, floorColor: null } : { background: value });
+          // Some places are best seen from a particular spot (the boat: side-on, whole boat in frame).
+          // Leaving such a place returns the camera to the usual view of the stage.
+          const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+          if (chosen.view) store.setCamera(fitView(chosen.view, aspect));
+          else if (leaving.view) store.setCamera(fitView(DEFAULT_CAMERA, aspect));
         },
         onCustom: (color, transient) => store.updateScene({ background: CUSTOM_BACKGROUND_ID, backgroundColor: color }, { transient }),
         onCustomCommit: () => store.commit(),

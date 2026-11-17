@@ -1,0 +1,29 @@
+Desert textures
+===============
+
+Everything in this folder is derived from public-domain (CC0 1.0) materials
+published by ambientCG (https://ambientcg.com). CC0: no rights reserved, no
+attribution required; listed here so the sources can be found again.
+
+sand-color.jpg, sand-normal.jpg
+    Ground098 (wind-rippled sand), Color and NormalGL maps, 1K JPG.
+    https://ambientcg.com/view?id=Ground098
+    Licence: CC0 1.0
+
+sand-soft-normal.jpg
+    Ground093C (smooth dune sand), NormalGL map, reduced to 512 px.
+    https://ambientcg.com/view?id=Ground093C
+    Licence: CC0 1.0
+
+rock-color.jpg, rock-normal.jpg
+    Rock029 (red desert rock), Color map (1K) and NormalGL map (768 px).
+    https://ambientcg.com/view?id=Rock029
+    Licence: CC0 1.0
+
+foliage-color.jpg, foliage-alpha.png
+    A 2 x 2 atlas of dry grass tufts and shrubs composed from the individual
+    stalks of two atlases (Color and Opacity maps, 1K JPG), re-tinted:
+    Foliage002  https://ambientcg.com/view?id=Foliage002  Licence: CC0 1.0
+    Foliage003  https://ambientcg.com/view?id=Foliage003  Licence: CC0 1.0
+
+All files were resized and recompressed for the web.
