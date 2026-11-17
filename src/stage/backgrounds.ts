@@ -1,10 +1,12 @@
 /**
  * Background presets: the data the stage renders and the UI lists.
  *
- * Three kinds:
+ * Four kinds:
  *   gradient — a screen-aligned vertical gradient (it does not move with the camera),
  *   sky      — a world-anchored procedural sky drawn on a big inverted sphere,
- *   solid    — one flat colour.
+ *   solid    — one flat colour,
+ *   place    — a sky plus 3D scenery around the stage (forest, city, desert, ocean);
+ *              the scenery itself is built by stage/places.ts.
  * Every preset also carries the colours the rest of the environment derives
  * from it: floor pattern, fog and the tint of the light rig.
  *
@@ -12,10 +14,11 @@
  * pattern are drawn exactly in these colours at exposure 1 (they are graphic
  * elements and bypass tone mapping).
  */
-import type { SceneSettings } from '../types';
+import type { FloorStyle, SceneSettings } from '../types';
 import { luminance, mixHex, normalizeHex } from './color';
 
-export type BackgroundKind = 'gradient' | 'sky' | 'solid';
+export type BackgroundKind = 'gradient' | 'sky' | 'solid' | 'place';
+export type PlaceKind = 'forest' | 'city' | 'desert' | 'ocean';
 export type SkyKind = 'stars' | 'sunset' | 'clouds' | 'aurora';
 
 export interface GradientStop {
@@ -35,6 +38,11 @@ export interface FloorHints {
   glowStrength: number;
   /** Opacity of the dancers' shadows on the floor, 0..1. */
   shadow: number;
+  /**
+   * Colour the textured floors (grass, concrete, dirt, sand) are multiplied by,
+   * so they sit in the backdrop's light. Default: halfway between the fog colour and white.
+   */
+  tone?: string;
 }
 
 export interface LightHints {
@@ -60,8 +68,12 @@ export interface BackgroundPreset {
   swatch: string;
   /** Gradient stops top → bottom (one stop for solids; for skies an approximation used only by the swatch). */
   stops: readonly GradientStop[];
-  /** Which procedural sky to draw (kind === 'sky'). */
+  /** Which procedural sky to draw (kinds 'sky' and 'place'). */
   sky?: SkyKind;
+  /** Which scenery surrounds the stage (kind === 'place'). */
+  place?: PlaceKind;
+  /** The floor that belongs to this place; the UI switches to it when the place is chosen. */
+  naturalFloor?: FloorStyle;
   /** Sky only: colour of the ground below the horizon. */
   ground?: string;
   /** Fog colour = the colour of the horizon. */
@@ -97,6 +109,8 @@ interface PresetInit {
   kind: BackgroundKind;
   stops: readonly (readonly [number, string])[];
   sky?: SkyKind;
+  place?: PlaceKind;
+  naturalFloor?: FloorStyle;
   ground?: string;
   swatch?: string;
   fog: string;
@@ -113,6 +127,8 @@ function preset(init: PresetInit): BackgroundPreset {
     swatch: init.swatch ?? cssGradient(stops),
     stops,
     ...(init.sky ? { sky: init.sky } : {}),
+    ...(init.place ? { place: init.place } : {}),
+    ...(init.naturalFloor ? { naturalFloor: init.naturalFloor } : {}),
     ...(init.ground ? { ground: init.ground } : {}),
     fog: init.fog,
     floor: init.floor,
@@ -328,6 +344,78 @@ export const BACKGROUNDS: readonly BackgroundPreset[] = [
     fog: '#84878c',
     floor: { line: '#eceef1', accent: '#ffcf5c', glow: '#ffffff', glowStrength: 0.12, shadow: 0.42 },
     light: { key: '#fff7ec', fill: '#eef2ff', bounce: '#6c6e72', rim: '#ffffff', fillIntensity: 0.9 },
+  }),
+  // ── Places: a sky plus 3D scenery (see stage/places.ts) ──
+  preset({
+    id: 'forest',
+    name: 'Forest',
+    kind: 'place',
+    place: 'forest',
+    sky: 'clouds',
+    naturalFloor: 'grass',
+    stops: [
+      [0, '#6fb0e6'],
+      [1, '#4f8a2b'],
+    ],
+    swatch:
+      'radial-gradient(circle at 24% 50%, #2f6b2a 0 17%, transparent 18%), radial-gradient(circle at 58% 44%, #3d7d33 0 21%, transparent 22%), radial-gradient(circle at 86% 52%, #2f6b2a 0 15%, transparent 16%), linear-gradient(180deg, #7fb6e6 0 56%, #5f9a3a 56%)',
+    ground: '#55893a',
+    fog: '#cfe3c4',
+    floor: { line: '#ffffff', accent: '#ffd76a', glow: '#ffffff', glowStrength: 0, shadow: 0.42, tone: '#ffffff' },
+    light: { key: '#fff2d2', keyIntensity: 2.9, fill: '#d4ecc4', bounce: '#4c6a2c', rim: '#f4ffd8', fillIntensity: 0.95 },
+  }),
+  preset({
+    id: 'city',
+    name: 'City',
+    kind: 'place',
+    place: 'city',
+    sky: 'sunset',
+    naturalFloor: 'concrete',
+    stops: [
+      [0, '#3a2468'],
+      [1, '#ffab66'],
+    ],
+    swatch:
+      'linear-gradient(#4a4046, #4a4046) 12% 100% / 20% 72% no-repeat, linear-gradient(#5d5055, #5d5055) 46% 100% / 17% 50% no-repeat, linear-gradient(#3f363c, #3f363c) 84% 100% / 24% 62% no-repeat, linear-gradient(180deg, #3a2468, #e0567c 55%, #ffab66)',
+    ground: '#8a6a66',
+    fog: '#f29a62',
+    floor: { line: '#ffe2bd', accent: '#ff7a59', glow: '#ffc890', glowStrength: 0, shadow: 0.5, tone: '#f3cdb6' },
+    light: { key: '#ffd9b0', fill: '#b08ad6', bounce: '#6a3040', rim: '#ff9440', rimIntensity: 6.0, keyIntensity: 2.2 },
+  }),
+  preset({
+    id: 'desert',
+    name: 'Desert',
+    kind: 'place',
+    place: 'desert',
+    sky: 'clouds',
+    naturalFloor: 'sand',
+    stops: [
+      [0, '#5fa3df'],
+      [1, '#d9b879'],
+    ],
+    swatch:
+      'radial-gradient(ellipse at 28% 100%, #d9b879 0 46%, transparent 47%), radial-gradient(ellipse at 80% 100%, #c79f60 0 40%, transparent 41%), linear-gradient(180deg, #5fa3df, #f1dcb2 72%)',
+    ground: '#d6b577',
+    fog: '#ecd9b4',
+    floor: { line: '#ffffff', accent: '#f28a2e', glow: '#ffffff', glowStrength: 0, shadow: 0.45, tone: '#ffffff' },
+    light: { key: '#fff0d0', keyIntensity: 3.1, fill: '#f3e2c0', bounce: '#c9a66a', rim: '#fff4dc', fillIntensity: 0.95 },
+  }),
+  preset({
+    id: 'ocean',
+    name: 'Ocean',
+    kind: 'place',
+    place: 'ocean',
+    sky: 'clouds',
+    stops: [
+      [0, '#5fa3df'],
+      [1, '#1f6f93'],
+    ],
+    swatch:
+      'linear-gradient(115deg, transparent 0 48%, #f3e9d2 49% 66%, transparent 67%) 50% 26% / 44% 46% no-repeat, linear-gradient(#b8452f, #b8452f) 50% 64% / 46% 9% no-repeat, linear-gradient(180deg, #7fb6e6 0 60%, #1f6f93 60%)',
+    ground: '#2f6f93',
+    fog: '#cfe6f3',
+    floor: { line: '#ffffff', accent: '#f28a2e', glow: '#ffffff', glowStrength: 0, shadow: 0.45, tone: '#ffffff' },
+    light: { key: '#fff4dc', keyIntensity: 3.0, fill: '#cfe6ff', bounce: '#7fb0cc', rim: '#ffffff', fillIntensity: 1 },
   }),
 ];
 

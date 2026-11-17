@@ -130,7 +130,7 @@ export function applyPatch<T extends object>(
 
 const AXES: readonly Axis[] = ['x', 'y', 'z'];
 const WARP_MODES: readonly WarpMode[] = ['wave', 'pulse'];
-const FLOOR_STYLES: readonly FloorStyle[] = ['grid', 'checker', 'tiles', 'none'];
+const FLOOR_STYLES: readonly FloorStyle[] = ['grid', 'checker', 'tiles', 'none', 'grass', 'concrete', 'dirt', 'sand'];
 const MODES: readonly InteractionMode[] = ['look', 'grab', 'both'];
 const QUALITIES: readonly Quality[] = ['low', 'medium', 'high'];
 

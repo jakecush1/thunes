@@ -21,7 +21,8 @@ import type { ProceduralCharacterSpec } from './characters/spec';
 
 export type Axis = 'x' | 'y' | 'z';
 export type WarpMode = 'wave' | 'pulse';
-export type FloorStyle = 'grid' | 'checker' | 'tiles' | 'none';
+/** Graphic patterns ('grid', 'checker', 'tiles'), no pattern ('none'), or a textured ground. */
+export type FloorStyle = 'grid' | 'checker' | 'tiles' | 'none' | 'grass' | 'concrete' | 'dirt' | 'sand';
 export type InteractionMode = 'look' | 'grab' | 'both';
 export type Quality = 'low' | 'medium' | 'high';
 

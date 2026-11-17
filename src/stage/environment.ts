@@ -43,6 +43,8 @@ export function createEnvironmentSystem(context: StageContext): StageSystem {
     backdrop.setPreset(preset);
     backdrop.setParams(time, gain, veil);
     floor.setLook(settings.floorStyle, settings.floorColor, preset);
+    // On the boat the deck is the floor (built by the places system).
+    floor.object.visible = preset.place !== 'ocean';
     floor.setAtmosphere(density, gain);
     lights.setLook(preset, settings.brightness);
     scene.environmentIntensity = preset.light.envIntensity * Math.max(0, settings.brightness);

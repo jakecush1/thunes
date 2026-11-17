@@ -6,6 +6,7 @@ import type { BackgroundKind, BackgroundPreset } from '../../../stage/background
 import type { FloorStyle, SceneSettings } from '../../../types';
 
 export const BACKDROP_GROUPS: readonly { kind: BackgroundKind; label: string }[] = [
+  { kind: 'place', label: 'Places' },
   { kind: 'gradient', label: 'Gradients' },
   { kind: 'sky', label: 'Skies' },
   { kind: 'solid', label: 'Solids' },
@@ -16,7 +17,19 @@ export function presetsOfKind(presets: readonly BackgroundPreset[], kind: Backgr
   return presets.filter((p) => p.kind === kind);
 }
 
-export const FLOOR_LABELS: Record<FloorStyle, string> = { grid: 'Grid', checker: 'Checker', tiles: 'Tiles', none: 'None' };
+export const FLOOR_LABELS: Record<FloorStyle, string> = {
+  grid: 'Grid',
+  checker: 'Checker',
+  tiles: 'Tiles',
+  none: 'None',
+  grass: 'Grass',
+  concrete: 'Concrete',
+  dirt: 'Dirt',
+  sand: 'Sand',
+};
+
+/** The floor styles drawn as a textured ground (the colour swatches tint them). */
+export const TEXTURED_FLOORS: ReadonlySet<FloorStyle> = new Set(['grass', 'concrete', 'dirt', 'sand']);
 
 /** What the floor colour swatches colour, per style. */
 export const FLOOR_COLOR_LABELS: Record<FloorStyle, string> = {
@@ -24,6 +37,10 @@ export const FLOOR_COLOR_LABELS: Record<FloorStyle, string> = {
   checker: 'Square colour',
   tiles: 'Tile colour',
   none: 'Floor colour',
+  grass: 'Tint',
+  concrete: 'Tint',
+  dirt: 'Tint',
+  sand: 'Tint',
 };
 
 /** Preset floor colours (lower-case hex; the store normalises colours to lower case). */

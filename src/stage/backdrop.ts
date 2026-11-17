@@ -289,7 +289,7 @@ export function createBackdrop(): Backdrop {
   return {
     object,
     setPreset(preset) {
-      const isSky = preset.kind === 'sky' && preset.sky !== undefined;
+      const isSky = (preset.kind === 'sky' || preset.kind === 'place') && preset.sky !== undefined;
       skyMesh.visible = isSky;
       gradientMesh.visible = !isSky;
       if (isSky) {

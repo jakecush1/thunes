@@ -1,8 +1,10 @@
 /**
  * The ground: a large plane at y = 0 drawn in two transparent layers.
  *   1. pattern — grid / checker / dance-floor tiles (or nothing) plus a soft
- *      pool of light around the stage centre. It fades to fully transparent
- *      with distance and fog, so it melts into whatever background is behind it.
+ *      pool of light around the stage centre, or a textured ground (grass,
+ *      concrete, dirt, sand) generated in the shader. It fades to fully
+ *      transparent with distance and fog, so it melts into whatever background
+ *      is behind it.
  *   2. shadow  — a ShadowMaterial layer that only darkens where dancers cast
  *      shadows. It works in every style, including 'none'.
  */
@@ -12,7 +14,16 @@ import type { AudioLevels, FloorStyle } from '../types';
 import type { BackgroundPreset } from './backgrounds';
 import { hexToRgb, mixHex } from './color';
 
-const STYLE_INDEX: Record<FloorStyle, number> = { grid: 0, checker: 1, tiles: 2, none: 3 };
+const STYLE_INDEX: Record<FloorStyle, number> = { grid: 0, checker: 1, tiles: 2, none: 3, grass: 4, concrete: 5, dirt: 6, sand: 7 };
+
+/** Styles at or above this index are textured grounds. */
+const FIRST_TEXTURED = STYLE_INDEX.grass;
+
+/**
+ * Average colour of the sand texture (display RGB, 0..1). Scenery that must
+ * meet the sand floor seamlessly (the desert's dunes) uses the same value.
+ */
+export const SAND_MID: readonly [number, number, number] = [0.85, 0.72, 0.475];
 
 /** Half edge length of the pattern plane, metres (the pattern has faded out long before). */
 const FLOOR_EXTENT = 320;
@@ -40,6 +51,8 @@ uniform float uBeatIndex;
 uniform float uBeatFrac;
 uniform float uLevel;
 uniform float uBass;
+uniform vec3 uTone;
+uniform float uTint;
 varying vec3 vWorld;
 
 float hash12(vec2 p) {
@@ -73,6 +86,80 @@ float checkerMask(vec2 p) {
 
 float tileLit(vec2 id, float beat) {
   return smoothstep(0.5, 0.62, hash12(id + beat * vec2(13.0, 7.0)));
+}
+
+// ── Textured grounds ─────────────────────────────────────────────────────
+float vnoise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash12(i), hash12(i + vec2(1.0, 0.0)), f.x),
+             mix(hash12(i + vec2(0.0, 1.0)), hash12(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+float fbm(vec2 p) {
+  float a = 0.5;
+  float s = 0.0;
+  for (int i = 0; i < 4; i++) {
+    s += a * vnoise(p);
+    p = p * 2.03 + vec2(17.3, 9.1);
+    a *= 0.5;
+  }
+  return s;
+}
+// 1 where a detail of the given frequency (cycles per metre) is resolvable on
+// screen, falling to 0 as it shrinks below a couple of pixels: fine detail
+// dissolves into its average instead of shimmering in the distance.
+float detail(vec2 p, float frequency) {
+  float footprint = max(fwidth(p.x), fwidth(p.y)) * frequency;
+  return clamp(1.25 - footprint * 1.6, 0.0, 1.0);
+}
+
+vec3 grassColor(vec2 p) {
+  float patches = fbm(p * 0.22);
+  float tuft = vnoise(p * 3.1);
+  vec3 c = mix(vec3(0.15, 0.32, 0.10), vec3(0.28, 0.49, 0.15), smoothstep(0.25, 0.7, patches));
+  c = mix(c, vec3(0.48, 0.64, 0.22), smoothstep(0.55, 0.95, tuft) * 0.45);
+  // Blades: two stretched noises multiplied give short streaks.
+  float blades = vnoise(vec2(p.x * 46.0 + tuft * 3.0, p.y * 17.0)) * vnoise(vec2(p.x * 19.0, p.y * 53.0));
+  c *= mix(1.0, 0.7 + 1.2 * blades, detail(p, 24.0));
+  // A sprinkle of daisies.
+  vec2 cell = floor(p * 2.3);
+  vec2 f = fract(p * 2.3) - 0.5 - (vec2(hash12(cell + 7.1), hash12(cell + 3.7)) - 0.5) * 0.6;
+  float flower = smoothstep(0.07, 0.03, length(f)) * step(0.94, hash12(cell)) * detail(p, 9.0);
+  return mix(c, vec3(0.96, 0.95, 0.82), flower);
+}
+
+vec3 concreteColor(vec2 p) {
+  vec3 c = mix(vec3(0.49, 0.48, 0.46), vec3(0.63, 0.62, 0.59), fbm(p * 0.55));
+  c *= mix(1.0, 0.93 + 0.14 * vnoise(p * 38.0), detail(p, 30.0));
+  // Old stains, expansion joints every 3 m and a few hairline cracks.
+  c *= 1.0 - 0.11 * smoothstep(0.6, 0.8, fbm(p * 0.17 + 40.0));
+  c = mix(c, c * 0.55, gridMask((p + 1.5) / 3.0, 0.004) * 0.9);
+  float crack = abs(fbm(p * 0.9 + 11.0) - 0.5);
+  c *= 1.0 - 0.35 * smoothstep(0.012, 0.0, crack) * detail(p, 8.0);
+  return c;
+}
+
+vec3 dirtColor(vec2 p) {
+  vec3 c = mix(vec3(0.32, 0.21, 0.13), vec3(0.50, 0.36, 0.22), fbm(p * 0.35));
+  c *= mix(1.0, 0.82 + 0.36 * vnoise(p * 9.0), detail(p, 6.0));
+  c *= mix(1.0, 0.9 + 0.2 * vnoise(p * 55.0), detail(p, 40.0));
+  // Pebbles.
+  vec2 cell = floor(p * 4.0);
+  vec2 f = fract(p * 4.0) - 0.5 - (vec2(hash12(cell + 1.3), hash12(cell + 9.2)) - 0.5) * 0.7;
+  float pebble = smoothstep(0.11, 0.07, length(f * vec2(1.0, 1.3))) * step(0.8, hash12(cell + 4.4)) * detail(p, 12.0);
+  c = mix(c, mix(vec3(0.56, 0.51, 0.45), vec3(0.29, 0.26, 0.23), hash12(cell + 2.2)), pebble);
+  // Damp patches.
+  return c * (1.0 - 0.18 * smoothstep(0.55, 0.8, fbm(p * 0.12 + 7.0)));
+}
+
+vec3 sandColor(vec2 p) {
+  vec3 c = mix(vec3(0.80, 0.66, 0.42), vec3(0.90, 0.78, 0.53), fbm(p * 0.18));
+  // Wind ripples a hand's width apart, bent by slow noise.
+  float ripple = sin((p.y + p.x * 0.25) * 22.0 + fbm(p * 0.5) * 15.0);
+  c *= mix(1.0, 0.94 + 0.08 * ripple, detail(p, 5.0));
+  c *= mix(1.0, 0.95 + 0.1 * vnoise(p * 70.0), detail(p, 50.0));
+  return c;
 }
 
 void main() {
@@ -112,6 +199,20 @@ void main() {
     color = mix(uLine, uAccent, mix(pick, 0.5, blur));
     intensity = mix(intensity, 0.2 + 0.45 * glowUp, blur);
     alpha = clamp(intensity, 0.0, 0.92) * inside;
+  }
+
+  if (uStyle >= ${FIRST_TEXTURED}) {
+    vec2 q = vWorld.xz;
+    if (uStyle == 4) color = grassColor(q);
+    else if (uStyle == 5) color = concreteColor(q);
+    else if (uStyle == 6) color = dirtColor(q);
+    else color = sandColor(q);
+    // A chosen floor colour recolours the texture and keeps its light and dark.
+    color = mix(color, dot(color, vec3(0.299, 0.587, 0.114)) * uLine * 1.7, uTint * 0.85);
+    color *= uTone;
+    // Solid ground: opaque nearby, thinning out more slowly than the graphic patterns.
+    alpha = 1.0;
+    fade = sqrt(fade);
   }
 
   alpha *= fade;
@@ -182,6 +283,8 @@ export function createFloor(): Floor {
     uBeatFrac: { value: 0 },
     uLevel: { value: 0 },
     uBass: { value: 0 },
+    uTone: { value: new THREE.Vector3(1, 1, 1) },
+    uTint: { value: 0 },
   };
 
   const patternGeometry = new THREE.PlaneGeometry(FLOOR_EXTENT * 2, FLOOR_EXTENT * 2);
@@ -230,6 +333,9 @@ export function createFloor(): Floor {
       setVector(uniforms.uAccent.value, colors.accent);
       setVector(uniforms.uGlow.value, preset.floor.glow);
       uniforms.uGlowStrength.value = preset.floor.glowStrength;
+      // Textured grounds: tinted only when the user picked a colour, and toned to sit in the backdrop's light.
+      uniforms.uTint.value = floorColor ? 1 : 0;
+      setVector(uniforms.uTone.value, preset.floor.tone ?? mixHex(preset.fog, '#ffffff', 0.55));
       shadowMaterial.opacity = preset.floor.shadow;
     },
     setAtmosphere(density, gain) {
