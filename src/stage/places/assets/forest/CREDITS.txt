@@ -1,0 +1,21 @@
+Forest textures
+===============
+
+All images in this folder come from ambientCG (https://ambientcg.com) and are
+in the public domain under CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/).
+They were downloaded as 1K JPG sets, reduced to the maps the forest uses and
+recompressed.
+
+File                                         Asset id     URL                                           Licence
+grass_color.jpg, grass_normal.jpg            Grass004     https://ambientcg.com/view?id=Grass004        CC0
+floor_color.jpg, floor_normal.jpg            Ground037    https://ambientcg.com/view?id=Ground037       CC0
+bark_broadleaf_color.jpg, _normal.jpg        Bark001      https://ambientcg.com/view?id=Bark001         CC0
+bark_conifer_color.jpg, _normal.jpg          Bark014      https://ambientcg.com/view?id=Bark014         CC0
+rock_color.jpg, rock_normal.jpg              Rock051      https://ambientcg.com/view?id=Rock051         CC0
+leaves_beech_color.jpg, _opacity.jpg         LeafSet024   https://ambientcg.com/view?id=LeafSet024      CC0
+leaves_hazel_color.jpg, _opacity.jpg         LeafSet014   https://ambientcg.com/view?id=LeafSet014      CC0
+needles_color.jpg, needles_opacity.jpg       LeafSet019   https://ambientcg.com/view?id=LeafSet019      CC0
+leaflets_color.jpg, leaflets_opacity.jpg     LeafSet013   https://ambientcg.com/view?id=LeafSet013      CC0
+
+The foliage atlas (branches, boughs, fern fronds, distant trees) is composed
+from the four leaf sets in code at load time: see ../../forest-textures.ts.

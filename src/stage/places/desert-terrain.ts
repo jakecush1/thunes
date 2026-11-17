@@ -104,7 +104,10 @@ function ridges(x: number, z: number, system: RidgeSystem, out: { height: number
   const swell = valueNoise(t / system.reach + row * 17.31, row * 5.17 + 0.5, seed + 2);
   const amount = smoothstep(1 - system.cover - 0.16, 1 - system.cover + 0.2, swell);
   const size = 0.62 + 0.55 * valueNoise(x / (spacing * 3.1) + 5, z / (spacing * 3.1) + 9, seed + 3);
-  const top = system.height * amount * size;
+  // Peaks and saddles along the crest, so a ridge is never a level wall.
+  const peaks = 0.58 + 0.84 * valueNoise(t / (system.reach * 0.36) + row * 3.71, row * 1.37 + 0.2, seed + 4);
+  // A slip face must end before the next dune begins.
+  const top = Math.min(system.height * amount * size * peaks, (spacing * 0.42 - 1.5) * SLIP);
   if (top < 0.01) {
     out.height = 0;
     out.slip = 0;
@@ -123,7 +126,7 @@ function ridges(x: number, z: number, system: RidgeSystem, out: { height: number
   out.slip = d > crest && lee > 0.1 ? smoothstep(0, 0.6, d - crest) * smoothstep(0.1, 0.5, lee) : 0;
 }
 
-const MAIN: RidgeSystem = { wind: WIND, spacing: 46, phase: 0.2757, height: 8.2, rise: 27, horns: 8, meander: 13, reach: 62, cover: 0.72, seed: 21 };
+const MAIN: RidgeSystem = { wind: WIND, spacing: 46, phase: 0.2757, height: 8.2, rise: 27, horns: 10, meander: 16, reach: 50, cover: 0.62, seed: 21 };
 const SMALL: RidgeSystem = { wind: [0.9703, -0.2419], spacing: 17, phase: 0.2, height: 1.25, rise: 10, horns: 3, meander: 5, reach: 21, cover: 0.45, seed: 47 };
 const FAR: RidgeSystem = { wind: [0.9336, 0.3584], spacing: 118, phase: 0.55, height: 24, rise: 64, horns: 18, meander: 30, reach: 150, cover: 0.8, seed: 83 };
 

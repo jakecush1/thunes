@@ -12,7 +12,7 @@
  * sand reads; the dancers' own shadows still come from the key light's map.
  */
 import * as THREE from 'three';
-import { WIND } from './desert-terrain';
+import { CREST, WIND } from './desert-terrain';
 
 /** Angle between the dune-building wind and the ripples' wind, radians. */
 const RIPPLE_TURN = (38 * Math.PI) / 180;
@@ -184,6 +184,7 @@ uniform vec2 uThWind;
 uniform vec2 uThCrest;
 uniform vec3 uThSandLook;
 uniform vec4 uThSandHue;
+uniform vec2 uThDune;
 `;
 
 /**
@@ -219,6 +220,10 @@ float thBlend = smoothstep( 0.2, 0.8, fract( thPick ) - 0.1 * ( thColA.r + thCol
 vec3 thMean = textureLod( uThSandColor, vec2( 0.5 ), 12.0 ).rgb;
 vec3 thSand = mix( thColA, thColB, thBlend );
 thSand = mix( thSand, thMean, thSlip * 0.75 );
+// Slip faces: faint streaks down the fall line, left by sand avalanching from the brink.
+float thAlong = dot( thXZ, uThDune );
+float thStreak = thNoise( vec2( thAlong * 1.9, vThWorld.y * 0.12 ) ) - 0.5 + 0.6 * ( thNoise( vec2( thAlong * 6.1, vThWorld.y * 0.3 + 7.0 ) ) - 0.5 );
+thSand *= 1.0 + 0.16 * thSlip * thStreak;
 // Dune-scale mottling from a blurred, much larger copy of the photograph.
 vec3 thBroad = texture2D( uThSandColor, thXZ.yx * 0.0137 + 0.31, 2.5 ).rgb / thMean;
 vec3 thWide = texture2D( uThSandColor, thXZ * 0.0031 + 0.63, 1.0 ).rgb / thMean;
@@ -260,6 +265,7 @@ export function createSandMaterial(shared: DesertUniforms): THREE.MeshStandardMa
     uniforms: {
       uThWind: { value: wind },
       uThCrest: { value: new THREE.Vector2(-wind.y, wind.x) },
+      uThDune: { value: new THREE.Vector2(CREST[0], CREST[1]) },
       // x: size of one ripple tile, metres. y: ripple depth. z: strength of the dune-scale mottling.
       uThSandLook: { value: new THREE.Vector3(1.8, 1.15, 0.7) },
       // rgb: tint of the photograph; w: its saturation.
@@ -363,7 +369,7 @@ export function createCactusMaterial(shared: DesertUniforms, skin: THREE.Texture
       #include <map_fragment>
       float thSunVis = 1.0;
       // Dust and shade at the foot.
-      diffuseColor.rgb = mix( uThSandTint, diffuseColor.rgb, 0.45 + 0.55 * smoothstep( 0.0, 0.5, vThAbove ) );
+      diffuseColor.rgb = mix( uThSandTint, diffuseColor.rgb, 0.68 + 0.32 * smoothstep( 0.0, 0.32, vThAbove ) );
       float thAO = mix( 0.55, 1.0, smoothstep( 0.0, 0.45, vThAbove ) );
     `,
   });

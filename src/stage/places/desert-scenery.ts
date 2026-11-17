@@ -169,6 +169,8 @@ export function buildButte(shape: ButteShape): THREE.BufferGeometry {
     const cz = Math.sin(angle);
     // Plan outline: lobes and bays.
     const outline = 1 + (fbm3(cx * 1.3 + 4, cz * 1.3 + 9, 0.5, seed) - 0.5) * 0.7 + (noise3(cx * 3.4, cz * 3.4, 2.5, seed + 5) - 0.5) * 0.2;
+    // The beds are not quite level: they rise and dip a little around the butte.
+    const bedding = (noise3(cx * 1.6 + 7, cz * 1.6, 3.3, seed + 41) - 0.5) * 0.07;
     for (let i = 0; i < rows; i++) {
       const [v, factor, stratum] = BUTTE_PROFILE[i]!;
       // 0 on the scree, 1 on the cliff. Relief depends on the position only, so creased rows stay welded.
@@ -182,7 +184,7 @@ export function buildButte(shape: ButteShape): THREE.BufferGeometry {
       const radius = shape.radius * Math.max(0, factor * plan + (factor > 0 ? relief : 0));
       const k = (i * AROUND + j) * 3;
       positions[k] = cx * radius * shape.elongation;
-      positions[k + 1] = v * shape.height + (factor < 0.7 ? (noise3(cx * 2, cz * 2, 7, seed + 23) - 0.5) * shape.height * 0.012 : 0);
+      positions[k + 1] = (v + bedding * cliff * (factor > 0.7 ? 1 : 0.4)) * shape.height;
       positions[k + 2] = cz * radius;
       const tint = STRATA[stratum]!;
       // Thin darker seams and streaks inside each bed.

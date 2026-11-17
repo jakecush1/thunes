@@ -299,7 +299,7 @@ export async function build(context: StageContext): Promise<Place> {
   ];
   const butteItems: Item[][] = [
     [
-      { x: 31, z: -72, scale: 1, yaw: 0.4, sink: 0.6, tint: shade() },
+      { x: 32, z: -74, scale: 0.86, yaw: 0.4, sink: 0.6, tint: shade() },
       { x: 104, z: -18, scale: 1.2, yaw: 2.1, sink: 0.6, tint: shade() },
       { x: -70, z: 78, scale: 1.1, yaw: 4.0, sink: 0.6, tint: shade() },
     ],
@@ -381,7 +381,7 @@ export async function build(context: StageContext): Promise<Place> {
   // ── Boulders: a few groups near the stage, strays farther out, pebbles around them ──
   const rockMaterial = bin.add(createRockMaterial(uniforms, { key: 'boulder', tile: 2.6, stretch: 1, bump: 1.25, gain: 1.45, foot: 0.22, topDust: 0.5, contact: 0.4 }));
   const rockShapes = [bin.add(buildRock(101, 7)), bin.add(buildRock(202, 7)), bin.add(buildRock(303, 6, 1))];
-  const pebbleShape = bin.add(buildRock(404, 3));
+  const pebbleShape = bin.add(buildRock(404, 2));
   const rockItems: Item[][] = [[], [], []];
   const pebbles: Item[] = [];
   const lean = (): readonly [number, number] => [(rng() - 0.5) * 0.5, (rng() - 0.5) * 0.5];

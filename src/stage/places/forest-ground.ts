@@ -287,13 +287,14 @@ export function createGroundMaterial(textures: ForestTextures, maps: LightMaps):
         float gCover = 1.0 - texture2D( uCover, gp / ${COVER_SPAN.toFixed(1)} + 0.5 ).r;
         // Grass gives way to moss, soil and litter under the trees, in ragged patches.
         float gFloor = smoothstep( 0.3, 0.62, gCover + ( gPatch.g - 0.5 ) * 0.5 );
-        float gFar = smoothstep( 6.0, 30.0, gDist );
-        vec3 gGrass = mix( texture2D( uGrassMap, gp * 0.61 ).rgb, texture2D( uGrassMap, gq * 0.139 ).rgb, 0.12 + 0.62 * gFar );
-        vec3 gSoil = mix( texture2D( uFloorMap, gq * 0.33 ).rgb, texture2D( uFloorMap, gp * 0.079 ).rgb, 0.12 + 0.6 * gFar );
+        // Fine detail from the photograph, large-scale light and dark from the same photograph
+        // sampled much bigger (and turned): the tiling never lines up into a pattern.
+        vec3 gGrass = texture2D( uGrassMap, gp * 0.61 ).rgb * mix( 1.0, dot( texture2D( uGrassMap, gq * 0.139 ).rgb, vec3( 0.3, 0.6, 0.1 ) ) / 0.135, 0.6 );
+        vec3 gSoil = texture2D( uFloorMap, gq * 0.33 ).rgb * mix( 1.0, dot( texture2D( uFloorMap, gp * 0.079 ).rgb, vec3( 0.3, 0.6, 0.1 ) ) / 0.28, 0.6 );
         // Slow drifts of colour and half-metre mottling: lusher and drier patches, clover, thin spots.
         float gMottle = texture2D( uNoise, gp * 0.41 + 0.7 ).r;
-        gGrass *= mix( vec3( 0.6, 0.78, 0.52 ), vec3( 1.0, 1.1, 0.8 ), gSlow.g ) * ( 0.8 + 0.42 * gMottle );
-        gGrass = mix( gGrass, gGrass * vec3( 1.25, 1.08, 0.7 ), smoothstep( 0.56, 0.8, gPatch.b ) * 0.45 );
+        gGrass *= mix( vec3( 0.44, 0.74, 0.38 ), vec3( 0.78, 1.04, 0.6 ), gSlow.g ) * ( 0.8 + 0.4 * gMottle );
+        gGrass = mix( gGrass, gGrass * vec3( 1.2, 1.08, 0.74 ), smoothstep( 0.56, 0.8, gPatch.b ) * 0.25 );
         gSoil *= mix( vec3( 0.42, 0.45, 0.36 ), vec3( 0.74, 0.74, 0.6 ), gSlow.b ) * ( 0.84 + 0.3 * gMottle );
         diffuseColor.rgb *= mix( gGrass, gSoil, gFloor );
         // Sun: the baked map near the stage, a generic dapple under the trees beyond it.
@@ -336,25 +337,24 @@ export interface GrassOptions {
   meadow(x: number, z: number): boolean;
 }
 
-/** One blade: a tapered, curved strip one unit tall and one unit wide. */
-function bladeGeometry(): THREE.BufferGeometry {
-  const rows = [
-    [0, 0.5],
-    [0.36, 0.43],
-    [0.7, 0.27],
-  ] as const;
+/** One blade: a tapered, curved strip one unit tall and one unit wide. `rows` are [height, half width] below the tip. */
+function bladeGeometry(rows: readonly (readonly [number, number])[], bend: number): THREE.BufferGeometry {
   const positions: number[] = [];
   const normals: number[] = [];
   const uvs: number[] = [];
-  const curve = (t: number) => 0.42 * t * t;
-  for (const [t, half] of rows) {
+  const indices: number[] = [];
+  const curve = (t: number) => bend * t * t;
+  rows.forEach(([t, half], k) => {
     for (const sign of [-1, 1]) {
       positions.push(sign * half, t, curve(t));
       // Mostly upward normals, so the blades take the light as the ground does; rounded across the width.
       normals.push(sign * 0.35, 0.9, 0.25);
       uvs.push(sign < 0 ? 0 : 1, t);
     }
-  }
+    const a = k * 2;
+    if (k < rows.length - 1) indices.push(a, a + 1, a + 3, a, a + 3, a + 2);
+    else indices.push(a, a + 1, a + 2);
+  });
   positions.push(0, 1, curve(1));
   normals.push(0, 0.92, 0.38);
   uvs.push(0.5, 1);
@@ -362,7 +362,7 @@ function bladeGeometry(): THREE.BufferGeometry {
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
   geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
   geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-  geometry.setIndex([0, 1, 3, 0, 3, 2, 2, 3, 5, 2, 5, 4, 4, 5, 6]);
+  geometry.setIndex(indices);
   return geometry;
 }
 
@@ -395,21 +395,22 @@ function grassMaterial(wind: { value: number }): THREE.MeshLambertMaterial {
         vec4 mvPosition = modelViewMatrix * bladeWorld;
         gl_Position = projectionMatrix * mvPosition;`,
       );
-    shader.fragmentShader = shader.fragmentShader
+    shader.fragmentShader = dimRimLight(shader.fragmentShader, 0.1)
       .replace('#include <common>', '#include <common>\nvarying vec2 vBlade;')
       .replace(
         '#include <color_fragment>',
         `#include <color_fragment>
-        // Dark at the root, where the blades shade each other; bright at the tip.
-        diffuseColor.rgb *= mix( vec3( 0.2, 0.26, 0.13 ), vec3( 1.0 ), smoothstep( 0.0, 0.85, vBlade.x ) );`,
+        // Dimmer at the root, where the blades shade each other; bright at the tip.
+        diffuseColor.rgb *= mix( vec3( 0.46, 0.56, 0.38 ), vec3( 1.0 ), smoothstep( 0.0, 0.75, vBlade.x ) );`,
       )
       .replace(
         '#include <lights_fragment_end>',
         `#include <lights_fragment_end>
         reflectedLight.directDiffuse *= vBlade.y;
+        reflectedLight.indirectDiffuse *= mix( 0.6, 1.0, vBlade.y );
         #if NUM_DIR_LIGHTS > 0
           // Sunlight glowing through the upper blade.
-          reflectedLight.directDiffuse += directionalLights[ 0 ].color * RECIPROCAL_PI * diffuseColor.rgb * vec3( 1.0, 1.1, 0.5 ) * ( 0.22 * vBlade.x * vBlade.y );
+          reflectedLight.directDiffuse += directionalLights[ 0 ].color * RECIPROCAL_PI * diffuseColor.rgb * vec3( 1.0, 1.1, 0.5 ) * ( 0.2 * vBlade.x * vBlade.y );
         #endif`,
       );
   };
@@ -417,65 +418,29 @@ function grassMaterial(wind: { value: number }): THREE.MeshLambertMaterial {
   return material;
 }
 
-/** Tens of thousands of blades: a short lawn where the dancers stand, taller tufts around it. */
-export function buildGrass(options: GrassOptions): THREE.InstancedMesh {
-  const rng = mulberry32(1234);
-  const { maps } = options;
-  const blades: number[] = []; // x, z, height, width, yaw, tilt, tone
-  const add = (x: number, z: number, height: number, width: number, tone: number) => {
-    if (options.blocked(x, z)) return;
-    blades.push(x, z, height, width, rng() * Math.PI * 2, (rng() - 0.5) * 0.9, tone);
-  };
+/** Where the mown-short lawn ends, by direction: a ragged edge, never a circle. Always beyond the stage. */
+function lawnEdge(angle: number): number {
+  return 7.5 + 0.7 * Math.sin(angle * 3 + 0.7) + 0.4 * Math.sin(angle * 5 + 2.1) + 0.25 * Math.sin(angle * 11);
+}
 
-  // The lawn: short enough everywhere on the stage that feet stay in view.
-  const LAWN = 7.8;
-  for (let i = 0; i < 19000; i++) {
-    const r = Math.sqrt(rng()) * LAWN;
-    const angle = rng() * Math.PI * 2;
-    const x = Math.sin(angle) * r;
-    const z = Math.cos(angle) * r;
-    const edge = smooth((r - 5.6) / 2.2);
-    add(x, z, (0.05 + rng() * 0.07) * (1 + edge * 0.8), 0.014 + rng() * 0.012, rng());
-  }
-  // Tufts: taller grass in clumps around the lawn, thinning under the trees and with distance.
-  const tufts = (count: number, near: number, far: number, bias: number, minHeight: number, maxHeight: number, perTuft: number) => {
-    for (let i = 0; i < count; i++) {
-      const r = near + Math.pow(rng(), bias) * (far - near);
-      const angle = rng() * Math.PI * 2;
-      const cx = Math.sin(angle) * r;
-      const cz = Math.cos(angle) * r;
-      const open = options.meadow(cx, cz) ? 1 : 1 - maps.coverAt(cx, cz) * 0.85;
-      if (rng() > open) continue;
-      const grow = smooth((r - LAWN) / 3.5);
-      const tall = minHeight + (maxHeight - minHeight) * grow * (0.5 + rng() * 0.5);
-      const n = Math.round(perTuft * (0.6 + rng() * 0.8));
-      const tone = rng();
-      for (let k = 0; k < n; k++) {
-        const spread = 0.05 + rng() * 0.16;
-        const a = rng() * Math.PI * 2;
-        add(cx + Math.cos(a) * spread, cz + Math.sin(a) * spread, tall * (0.55 + rng() * 0.6), 0.02 + rng() * 0.02, Math.min(1, Math.max(0, tone + (rng() - 0.5) * 0.3)));
-      }
-    }
-  };
-  tufts(2300, LAWN - 0.4, 17, 1.35, 0.14, 0.5, 7);
-  tufts(900, 17, 32, 1.2, 0.3, 0.62, 6);
+const BLADE_FIELDS = 7; // x, z, height, width, yaw, tilt, tone
 
-  const count = blades.length / 7;
-  const geometry = bladeGeometry();
+function bladeMesh(geometry: THREE.BufferGeometry, material: THREE.Material, blades: number[], maps: LightMaps, name: string): THREE.InstancedMesh {
+  const count = blades.length / BLADE_FIELDS;
   const sun = new Float32Array(count);
-  const mesh = new THREE.InstancedMesh(geometry, grassMaterial(options.wind), count);
-  mesh.name = 'forest-grass';
+  const mesh = new THREE.InstancedMesh(geometry, material, count);
+  mesh.name = name;
   const matrix = new THREE.Matrix4();
   const position = new THREE.Vector3();
   const scale = new THREE.Vector3();
   const rotation = new THREE.Quaternion();
   const euler = new THREE.Euler(0, 0, 0, 'YXZ');
   const color = new THREE.Color();
-  const lush = new THREE.Color().setRGB(0.36, 0.52, 0.17, THREE.SRGBColorSpace);
-  const olive = new THREE.Color().setRGB(0.53, 0.6, 0.25, THREE.SRGBColorSpace);
-  const straw = new THREE.Color().setRGB(0.72, 0.68, 0.36, THREE.SRGBColorSpace);
+  const lush = new THREE.Color().setRGB(0.33, 0.5, 0.16, THREE.SRGBColorSpace);
+  const olive = new THREE.Color().setRGB(0.5, 0.6, 0.24, THREE.SRGBColorSpace);
+  const straw = new THREE.Color().setRGB(0.7, 0.66, 0.36, THREE.SRGBColorSpace);
   for (let i = 0; i < count; i++) {
-    const o = i * 7;
+    const o = i * BLADE_FIELDS;
     const x = blades[o]!;
     const z = blades[o + 1]!;
     const height = blades[o + 2]!;
@@ -496,4 +461,85 @@ export function buildGrass(options: GrassOptions): THREE.InstancedMesh {
   mesh.matrixAutoUpdate = false;
   mesh.receiveShadow = true;
   return mesh;
+}
+
+/**
+ * Tens of thousands of blades: a short lawn where the dancers stand (feet stay
+ * in view), growing longer toward its ragged edge, and tall tufts beyond.
+ * Returns two meshes that share one material; the caller disposes all three.
+ */
+export function buildGrass(options: GrassOptions): THREE.InstancedMesh[] {
+  const rng = mulberry32(1234);
+  const { maps } = options;
+  const lawn: number[] = [];
+  const tall: number[] = [];
+  const add = (list: number[], x: number, z: number, height: number, width: number, tone: number) => {
+    if (options.blocked(x, z)) return;
+    list.push(x, z, height, width, rng() * Math.PI * 2, (rng() - 0.5) * 0.9, tone);
+  };
+
+  const LAWN_REACH = 9.6;
+  for (let i = 0; i < 64000; i++) {
+    const r = Math.sqrt(rng()) * LAWN_REACH;
+    const angle = rng() * Math.PI * 2;
+    const beyond = r - lawnEdge(angle);
+    if (beyond > 0 && rng() > 0.75 * (1 - beyond / 1.8)) continue;
+    const longer = smooth((r - 6.1) / 3);
+    add(lawn, Math.sin(angle) * r, Math.cos(angle) * r, (0.05 + rng() * 0.07) * (1 + longer * 1.7), 0.013 + rng() * 0.011 + longer * 0.006, rng());
+  }
+
+  // Longer, thinner grass carries on from the lawn into the open ground, most of all toward the default camera.
+  const rough = (x: number, z: number, density: number) => {
+    const r = Math.hypot(x, z);
+    if (r < lawnEdge(Math.atan2(x, z)) + 0.6 || rng() > density) return;
+    if (!options.meadow(x, z) && rng() < maps.coverAt(x, z) * 1.6) return;
+    const longer = smooth((r - 8) / 5);
+    add(lawn, x, z, (0.12 + rng() * 0.12) * (1 + longer * 0.9), 0.018 + rng() * 0.012, rng());
+  };
+  for (let i = 0; i < 11000; i++) {
+    const z = 6 + Math.pow(rng(), 1.5) * 24;
+    rough((rng() * 2 - 1) * (3.5 + (z - 2) * 0.6), z, 1 - (z - 6) / 40);
+  }
+  for (let i = 0; i < 9000; i++) {
+    const r = 8 + Math.pow(rng(), 1.5) * 9;
+    const angle = rng() * Math.PI * 2;
+    rough(Math.sin(angle) * r, Math.cos(angle) * r, 1 - (r - 8) / 14);
+  }
+
+  // Tufts: clumps of long grass, thinning under the trees and with distance.
+  const tuft = (cx: number, cz: number, minHeight: number, maxHeight: number, perTuft: number) => {
+    const r = Math.hypot(cx, cz);
+    if (r < Math.max(8.5, lawnEdge(Math.atan2(cx, cz)) + 0.3)) return;
+    const open = options.meadow(cx, cz) ? 1 : 1 - maps.coverAt(cx, cz) * 0.85;
+    if (rng() > open) return;
+    const grow = smooth((r - 8.3) / 3.5);
+    const height = minHeight + (maxHeight - minHeight) * grow * (0.5 + rng() * 0.5);
+    const n = Math.round(perTuft * (0.6 + rng() * 0.8));
+    const tone = rng();
+    for (let k = 0; k < n; k++) {
+      const spread = 0.04 + rng() * 0.15;
+      const a = rng() * Math.PI * 2;
+      add(tall, cx + Math.cos(a) * spread, cz + Math.sin(a) * spread, height * (0.55 + rng() * 0.6), 0.02 + rng() * 0.02, Math.min(1, Math.max(0, tone + (rng() - 0.5) * 0.3)));
+    }
+  };
+  const ring = (count: number, near: number, far: number, bias: number, minHeight: number, maxHeight: number, perTuft: number) => {
+    for (let i = 0; i < count; i++) {
+      const r = near + Math.pow(rng(), bias) * (far - near);
+      const angle = rng() * Math.PI * 2;
+      tuft(Math.sin(angle) * r, Math.cos(angle) * r, minHeight, maxHeight, perTuft);
+    }
+  };
+  ring(2000, 8.4, 17, 1.3, 0.16, 0.5, 6);
+  ring(700, 17, 32, 1.2, 0.3, 0.62, 5);
+  // The open meadow between the default camera and the stage.
+  for (let i = 0; i < 1300; i++) {
+    const z = 7 + Math.pow(rng(), 1.3) * 26;
+    tuft((rng() * 2 - 1) * (3.5 + (z - 2) * 0.6), z, 0.18, 0.55, 6);
+  }
+
+  const material = grassMaterial(options.wind);
+  return [
+    bladeMesh(bladeGeometry([[0, 0.5], [0.46, 0.34]], 0.3), material, lawn, maps, 'forest-lawn'),
+    bladeMesh(bladeGeometry([[0, 0.5], [0.36, 0.43], [0.7, 0.27]], 0.42), material, tall, maps, 'forest-tall-grass'),
+  ];
 }

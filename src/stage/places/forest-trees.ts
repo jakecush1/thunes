@@ -505,7 +505,7 @@ export function coniferMid(seed: number, atlas: ForestAtlas): PlantModel {
     [0.36, 0.25, 0.13, 0.03],
     { radial: 5, wraps: 1, perMetre: 1, strip: atlas.bark[1]!, shade: (i) => (i === 0 ? 0.5 : 0.8) },
   );
-  addCross(b, pick(atlas.farConifer, rng), height, width, 3, rng() * Math.PI, 1);
+  addCross(b, atlas.farConifer[seed % atlas.farConifer.length]!, height, width, 3, rng() * Math.PI, 1);
   const out = new THREE.Vector3();
   const side = new THREE.Vector3();
   const blobs: number[] = [];
@@ -585,8 +585,8 @@ export function shrub(seed: number, atlas: ForestAtlas): THREE.BufferGeometry {
     const base = new THREE.Vector3(Math.sin(angle) * offset, 0.02 + offset * 0.5, Math.cos(angle) * offset);
     side.crossVectors(dir, randomUnit(rng, tmpC)).normalize();
     addCard(b, [base, base.clone().addScaledVector(dir, length)], side, length * 0.46, pick(atlas.shrubs, rng), centre, 0.7, (p, t) => {
-      const value = shade * (0.42 + 0.3 * t + 0.34 * Math.min(1, p.y / 1.5));
-      return [value * 1.04, value, value * 0.9];
+      const value = shade * 0.86 * (0.42 + 0.3 * t + 0.34 * Math.min(1, p.y / 1.5));
+      return [value, value, value * 0.9];
     });
   };
   const spin = rng() * Math.PI * 2;

@@ -35,10 +35,11 @@ import stoneUrl from './assets/city/facade-stone.jpg';
 import pavingNormalUrl from './assets/city/paving-n.jpg';
 import pavingUrl from './assets/city/paving.jpg';
 import { buildBuildings } from './city-buildings';
-import { buildCars } from './city-cars';
+import { buildCars, createDetailMaterial } from './city-cars';
 import { buildGround } from './city-ground';
 import { createCityLook } from './city-look';
 import type { ShadeBox } from './city-look';
+import type { CityPart } from './city-mesh';
 import { createCityPlan } from './city-plan';
 import { buildProps } from './city-props';
 import { createBin } from './shared';
@@ -112,10 +113,12 @@ export async function build(context: StageContext): Promise<Place> {
       glass: { map: glass, normal: glassNormal, metal: glassMetal },
     },
   });
-  const cars = buildCars(look);
-  const props = buildProps(look, buildings.masts);
+  const detail = bin.add(createDetailMaterial(look));
+  const cars = buildCars(look, detail);
+  const props = buildProps(detail, buildings.masts, cars.lights);
 
-  for (const part of [ground, buildings, cars, props]) {
+  const parts: CityPart[] = [ground, buildings, cars, props];
+  for (const part of parts) {
     for (const mesh of part.meshes) {
       bin.add(mesh.geometry);
       if (mesh instanceof THREE.InstancedMesh) bin.add(mesh);

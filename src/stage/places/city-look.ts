@@ -35,6 +35,8 @@ export interface SceneryOptions {
   stageLights: 'ground' | 'none';
   /** Program cache key: one per distinct combination of hooks. */
   key: string;
+  /** Strength of the sun on this surface (default 1); the road takes more, for the glare toward the sun. */
+  sun?: number;
   uniforms?: Record<string, THREE.IUniform>;
   vertexHead?: string;
   vertexBody?: string;
@@ -202,11 +204,11 @@ export function createCityLook(renderer: THREE.WebGLRenderer): CityLook {
           /* glsl */ `
           vec3 cityNormal = inverseTransformDirection(normal, viewMatrix);
           float citySun = citySunlight(vCityPos, cityNormal);
-          ${ground ? 'float cityKeyGain = mix(0.34, 1.0, citySun);\nfloat cityRimGain = cityKeyGain * 0.28;' : ''}
+          ${ground ? 'float cityKeyGain = mix(0.34, 1.0, citySun);\nfloat cityRimGain = cityKeyGain * 0.2;' : ''}
           ${lightsChunk(options.stageLights)}
           {
             IncidentLight citySunLight;
-            citySunLight.color = uCitySun * citySun;
+            citySunLight.color = uCitySun * (citySun * ${(options.sun ?? 1).toFixed(2)});
             citySunLight.direction = normalize((viewMatrix * vec4(${SUN_GLSL}, 0.0)).xyz);
             citySunLight.visible = true;
             RE_Direct(citySunLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight);
@@ -215,7 +217,7 @@ export function createCityLook(renderer: THREE.WebGLRenderer): CityLook {
         );
         shader.fragmentShader = fragment;
       };
-      material.customProgramCacheKey = () => `thunes-city-${options.key}-${options.stageLights}`;
+      material.customProgramCacheKey = () => `thunes-city-${options.key}-${options.stageLights}-${options.sun ?? 1}`;
       return material;
     },
     setShade(boxes) {

@@ -9,7 +9,8 @@
 import * as THREE from 'three';
 import type { CityLook } from './city-look';
 import { MeshBuilder } from './city-mesh';
-import { GROUND_FLOOR, KERB, STOREY } from './city-plan';
+import type { CityPart } from './city-mesh';
+import { GROUND_FLOOR, STOREY } from './city-plan';
 import type { Building, CityPlan, FacadeKind, Tier } from './city-plan';
 import { mulberry32 } from './shared';
 
@@ -37,11 +38,11 @@ interface FacadeSpec {
 }
 
 const FACADES: Record<FacadeKind, FacadeSpec> = {
-  brick: { cols: 6, rows: 6, shift: 0.5, lit: 0.3, trim: 0x8f7466 },
-  stone: { cols: 6, rows: 6, shift: 0.5, lit: 0.32, trim: 0x807b76 },
-  pier: { cols: 6, rows: 6, shift: 0.5, lit: 0.3, trim: 0x7d5e52 },
-  band: { cols: 14, rows: 8, shift: 0, lit: 0.22, trim: 0xc9c9c4 },
-  glass: { cols: 16, rows: 10, shift: 0, lit: 0.14, trim: 0x4b5058 },
+  brick: { cols: 6, rows: 6, shift: 0.5, lit: 0.2, trim: 0x8f7466 },
+  stone: { cols: 6, rows: 6, shift: 0.5, lit: 0.22, trim: 0x807b76 },
+  pier: { cols: 6, rows: 6, shift: 0.5, lit: 0.2, trim: 0x7d5e52 },
+  band: { cols: 14, rows: 8, shift: 0, lit: 0.15, trim: 0xc9c9c4 },
+  glass: { cols: 16, rows: 10, shift: 0, lit: 0.1, trim: 0x4b5058 },
 };
 
 /** Shop fronts reuse the curtain-wall photograph: one row of its panes, three panes to a shop. */
@@ -51,7 +52,7 @@ const SHOP_PANES = 3;
 const SHOP_TOP = 3.75;
 const PLINTH = 0.45;
 
-const SIGN_COLORS = [0x2b2f36, 0x3b2f2a, 0x1f3a3a, 0x5a2a25, 0x2a3350, 0x4a4a45, 0x6b5b3a, 0x263a2c, 0x202022, 0x6a6258];
+const SIGN_COLORS = [0x1c1d20, 0x2a2623, 0x1a2526, 0x33201d, 0x20242e, 0x34332f, 0x3f382a, 0x1f2a22, 0x161617, 0x4a4640];
 const AWNING_COLORS = [0x7a2e24, 0x24503c, 0x26406a, 0x8a6a2a, 0x3a3a3a, 0x6e2f45, 0xb8ad98];
 
 const HASH = /* glsl */ `
@@ -67,29 +68,31 @@ const GLASS_SURFACE = /* glsl */ `
 roughnessFactor = mix(0.9, 0.07, metalnessFactor);
 `;
 
-/** Some windows are lit: warm for the most part, a few cool offices. */
+/** Some windows are lit: warm for the most part, a few cool offices, brighter toward the ceiling. */
 const WINDOW_GLOW = /* glsl */ `
 {
-  vec2 cell = floor(vMapUv * uCells.xy + uCells.z);
+  vec2 cellUv = vMapUv * uCells.xy + uCells.z;
+  vec2 cell = floor(cellUv);
   float lit = step(cityHash(cell), uLit.x);
-  vec3 lamp = mix(vec3(1.0, 0.6, 0.28), vec3(1.0, 0.84, 0.6), cityHash(cell + 17.3));
-  lamp = mix(lamp, vec3(0.72, 0.88, 1.0), step(0.85, cityHash(cell + 4.1)));
-  float level = mix(0.45, 1.0, cityHash(cell + 9.7));
-  totalEmissiveRadiance += lamp * (lit * level * metalnessFactor * uLit.y * (0.35 + 1.9 * dot(diffuseColor.rgb, vec3(0.333))));
+  vec3 lamp = mix(vec3(1.0, 0.58, 0.26), vec3(1.0, 0.82, 0.56), cityHash(cell + 17.3));
+  lamp = mix(lamp, vec3(0.7, 0.86, 1.0), step(0.86, cityHash(cell + 4.1)));
+  float level = mix(0.3, 1.0, cityHash(cell + 9.7));
+  float inside = mix(0.5, 1.0, smoothstep(0.15, 0.85, fract(cellUv.y)));
+  totalEmissiveRadiance += lamp * (lit * level * inside * metalnessFactor * uLit.y * (0.25 + 2.2 * dot(diffuseColor.rgb, vec3(0.333))));
 }
 `;
 
-/** Shops: most are open, bright toward the ceiling, with the blocky shapes of shelves and displays below. */
+/** Shops: most are open, lit from the ceiling, with uneven rows of stock in the lower half. */
 const SHOP_GLOW = /* glsl */ `
 {
   vec2 pane = vMapUv * vec2(${SHOP_COLS}.0, ${SHOP_ROWS}.0);
   vec2 shop = vec2(floor(pane.x / ${SHOP_PANES}.0), floor(pane.y));
   float open = step(cityHash(shop), uLit.x);
-  vec3 lamp = mix(vec3(1.0, 0.7, 0.4), vec3(1.0, 0.92, 0.78), cityHash(shop + 7.7));
+  vec3 lamp = mix(vec3(1.0, 0.7, 0.4), vec3(1.0, 0.9, 0.74), cityHash(shop + 7.7));
   float height = fract(pane.y);
-  float clutter = cityHash(floor(vec2(pane.x * 5.0, height * 7.0)) + shop * 3.1);
-  float shelves = mix(0.45, 1.0, clutter) * (1.0 - step(0.5, height)) + step(0.5, height);
-  float interior = mix(0.3, 1.0, smoothstep(0.05, 0.95, height)) * shelves;
+  float column = 0.72 + 0.28 * sin(pane.x * 7.0 + cityHash(shop) * 40.0) * sin(pane.x * 2.3 + 1.7);
+  float shelf = 0.84 + 0.16 * smoothstep(0.3, 0.5, abs(fract(height * 6.0) - 0.5) * 2.0);
+  float interior = mix(0.2, 1.0, smoothstep(0.0, 0.9, height)) * mix(column * shelf, 1.0, smoothstep(0.45, 0.7, height));
   totalEmissiveRadiance += lamp * (open * interior * metalnessFactor * uLit.y);
 }
 `;
@@ -126,9 +129,7 @@ function wallBox(builder: MeshBuilder, side: Side, a0: number, a1: number, y0: n
   builder.box(Math.min(px, qx), Math.max(px, qx), y0, y1, Math.min(pz, qz), Math.max(pz, qz), 0.25, bottom);
 }
 
-export interface BuiltBuildings {
-  meshes: THREE.Mesh[];
-  materials: THREE.Material[];
+export interface BuiltBuildings extends CityPart {
   /** Tops of the tall buildings (for aviation lights). */
   masts: { x: number; y: number; z: number }[];
 }
@@ -152,7 +153,7 @@ export function buildBuildings(plan: CityPlan, look: CityLook, textures: Buildin
     walls[kind].wall(side.ax, side.az, side.bx, side.bz, y0, y1, u0, u0 + bays / spec.cols, v0, v0 + floors / spec.rows);
   };
 
-  const groundFloor = (building: Building, side: Side, trim: THREE.Color, detailed: boolean): void => {
+  const groundFloor = (side: Side, trim: THREE.Color, detailed: boolean): void => {
     const shopCount = Math.max(1, Math.round(side.length / 6.2));
     const panes = shopCount * SHOP_PANES;
     const u0 = (Math.floor(rng() * 5) * SHOP_PANES) / SHOP_COLS + Math.floor(rng() * 40);
@@ -206,7 +207,6 @@ export function buildBuildings(plan: CityPlan, look: CityLook, textures: Buildin
         wallBox(plain, side, centre - 0.24, centre + 0.24, 0, SHOP_TOP, 0, 0.2);
       }
     }
-    void building;
   };
 
   const roof = (tier: Tier, trim: THREE.Color, parapet: boolean): void => {
@@ -293,7 +293,7 @@ export function buildBuildings(plan: CityPlan, look: CityLook, textures: Buildin
           return;
         }
         if (index === 0) {
-          groundFloor(building, side, trim, near);
+          groundFloor(side, trim, near);
           facadeWall(building.facade, side, GROUND_FLOOR, tier.y1);
         } else {
           facadeWall(building.facade, side, tier.y0, tier.y1);
@@ -324,7 +324,7 @@ export function buildBuildings(plan: CityPlan, look: CityLook, textures: Buildin
       key: 'facade',
       uniforms: {
         uCells: { value: new THREE.Vector3(spec.cols, spec.rows, spec.shift) },
-        uLit: { value: new THREE.Vector2(spec.lit, 2.6) },
+        uLit: { value: new THREE.Vector2(spec.lit, 1.25) },
       },
       fragmentHead: `uniform vec3 uCells;\nuniform vec2 uLit;\n${HASH}`,
       surface: GLASS_SURFACE,
@@ -338,7 +338,7 @@ export function buildBuildings(plan: CityPlan, look: CityLook, textures: Buildin
   const shopMaterial = look.patch(new THREE.MeshStandardMaterial({ map: glass.map, normalMap: glass.normal, metalnessMap: glass.metal, metalness: 1, roughness: 1 }), 1, {
     stageLights: 'none',
     key: 'shop',
-    uniforms: { uLit: { value: new THREE.Vector2(0.74, 3.4) } },
+    uniforms: { uLit: { value: new THREE.Vector2(0.62, 0.95) } },
     fragmentHead: `uniform vec2 uLit;\n${HASH}`,
     surface: GLASS_SURFACE,
     emissive: SHOP_GLOW,
@@ -353,6 +353,5 @@ export function buildBuildings(plan: CityPlan, look: CityLook, textures: Buildin
   });
   add(plain, plainMaterial, 'city-masonry', true);
 
-  void KERB;
   return { meshes, materials, masts };
 }

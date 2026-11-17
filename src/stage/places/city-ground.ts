@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import type { CityLook } from './city-look';
 import { MeshBuilder } from './city-mesh';
+import type { CityPart } from './city-mesh';
 import { BLOCK_SPANS, EDGE, KERB, ROAD, SIDE_STREETS } from './city-plan';
 import type { CityPlan, Rect } from './city-plan';
 import { mulberry32 } from './shared';
@@ -91,7 +92,7 @@ const ROAD_ALBEDO = /* glsl */ `
   roadOil = parking * smoothstep(0.6, 0.78, groundCloud(rp * 0.9 + 41.0));
   float gutter = onRoad * smoothstep(${(ROAD - 1.1).toFixed(1)}, ${ROAD.toFixed(1)}, alat);
 
-  vec3 asphalt = diffuseColor.rgb * vec3(0.62, 0.62, 0.64) * (0.6 + 0.45 * roadBlot + 0.4 * cloud);
+  vec3 asphalt = diffuseColor.rgb * vec3(0.5, 0.54, 0.6) * (0.6 + 0.45 * roadBlot + 0.4 * cloud);
   asphalt *= 1.0 - 0.15 * roadTrack - 0.4 * roadOil - 0.25 * gutter;
 
   float paint = 0.0;
@@ -162,12 +163,7 @@ const ATLAS = {
   patch: [0.512, 0.012, 0.988, 0.488],
 } as const;
 
-export interface BuiltGroundOld {
-  meshes: THREE.Mesh[];
-  materials: THREE.Material[];
-}
-
-export function buildGround(plan: CityPlan, look: CityLook, textures: GroundTextures): BuiltGround {
+export function buildGround(plan: CityPlan, look: CityLook, textures: GroundTextures): CityPart {
   const rng = mulberry32(4421);
 
   // ── Roads: every cell of the street grid that is not a block ──
@@ -229,19 +225,19 @@ export function buildGround(plan: CityPlan, look: CityLook, textures: GroundText
   };
   // Around the stage: a cover and a mended patch in the foreground, a square cover further back.
   decal('round', -2.35, 3.3, 0.86, 0.86, 0.4, 0.8);
-  decal('patch', 3.2, -3.4, 2.6, 2.2, 0.03, 0.5);
+  decal('patch', 3.2, -3.4, 2.6, 2.2, 0.03, 0.3);
   decal('square', 1.5, -5.2, 0.72, 0.72, 0, 0.72);
   decal('round', 2.1, -14.6, 0.86, 0.86, 1.3, 0.75);
-  decal('patch', -2.0, -24.5, 3.4, 2.4, 0, 0.46);
+  decal('patch', -2.0, -24.5, 3.4, 2.4, 0, 0.28);
   decal('round', -14.5, 1.9, 0.86, 0.86, 2.1, 0.8);
-  decal('patch', 19.0, -2.3, 3.0, 2.2, Math.PI / 2, 0.5);
+  decal('patch', 19.0, -2.3, 3.0, 2.2, Math.PI / 2, 0.3);
   decal('square', 16.2, 2.4, 0.72, 0.72, 0, 0.7);
   for (const sign of [-1, 1]) {
     for (let d = 26; d < 150; d += 17 + rng() * 22) {
       const kind = rng() < 0.55 ? 'round' : rng() < 0.5 ? 'square' : 'patch';
       const across = (rng() - 0.5) * 6.4;
       const size = kind === 'patch' ? 2 + rng() * 1.6 : kind === 'round' ? 0.86 : 0.72;
-      const shade = kind === 'patch' ? 0.42 + rng() * 0.14 : 0.7 + rng() * 0.12;
+      const shade = kind === 'patch' ? 0.26 + rng() * 0.08 : 0.7 + rng() * 0.12;
       if (rng() < 0.5) decal(kind, across, sign * d, size, kind === 'patch' ? size * 0.7 : size, rng() * 3, shade);
       else decal(kind, sign * d, across, size, kind === 'patch' ? size * 0.7 : size, rng() * 3, shade);
     }
@@ -268,24 +264,26 @@ export function buildGround(plan: CityPlan, look: CityLook, textures: GroundText
     return mesh;
   };
 
-  const roadMaterial = look.patch(new THREE.MeshStandardMaterial({ map: textures.asphalt, normalMap: textures.asphaltNormal, roughness: 1, metalness: 0 }), 0.62, {
+  const roadMaterial = look.patch(new THREE.MeshStandardMaterial({ map: textures.asphalt, normalMap: textures.asphaltNormal, roughness: 1, metalness: 0 }), 0.5, {
     stageLights: 'ground',
     key: 'road',
+    sun: 2.6,
     fragmentHead: ROAD_HEAD,
     albedo: ROAD_ALBEDO,
     surface: ROAD_SURFACE,
   });
   add(road, roadMaterial, 'city-road');
 
-  const pavingMaterial = look.patch(new THREE.MeshStandardMaterial({ map: textures.paving, normalMap: textures.pavingNormal, roughness: 0.86, metalness: 0 }), 0.62, {
+  const pavingMaterial = look.patch(new THREE.MeshStandardMaterial({ map: textures.paving, normalMap: textures.pavingNormal, roughness: 0.86, metalness: 0 }), 0.5, {
     stageLights: 'ground',
     key: 'paving',
+    sun: 1.6,
     fragmentHead: GROUND_NOISE,
     albedo: PAVING_ALBEDO,
   });
   add(paving, pavingMaterial, 'city-pavement');
 
-  const kerbMaterial = look.patch(new THREE.MeshStandardMaterial({ map: textures.concrete, roughness: 0.82, metalness: 0, color: 0xd0ccc4 }), 0.62, {
+  const kerbMaterial = look.patch(new THREE.MeshStandardMaterial({ map: textures.concrete, roughness: 0.82, metalness: 0, color: 0xd0ccc4 }), 0.5, {
     stageLights: 'ground',
     key: 'kerb',
     albedo: KERB_ALBEDO,
@@ -305,8 +303,8 @@ export function buildGround(plan: CityPlan, look: CityLook, textures: GroundText
       roughness: 0.72,
       metalness: 0,
     }),
-    0.62,
-    { stageLights: 'ground', key: 'decal' },
+    0.5,
+    { stageLights: 'ground', key: 'decal', sun: 2.6 },
   );
   add(decals, decalMaterial, 'city-decals', true).renderOrder = 1;
 

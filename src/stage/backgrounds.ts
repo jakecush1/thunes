@@ -398,6 +398,8 @@ export const BACKGROUNDS: readonly BackgroundPreset[] = [
     place: 'desert',
     sky: 'clouds',
     cloudCover: 0.3,
+    // A slightly lower camera: more sky and buttes behind the dancers.
+    view: { position: [1.2, 1.5, 8.2], target: [0, 1, 0] },
     naturalFloor: 'sand',
     stops: [
       [0, '#5fa3df'],
@@ -408,7 +410,8 @@ export const BACKGROUNDS: readonly BackgroundPreset[] = [
     ground: '#d6b577',
     fog: '#ecd9b4',
     floor: { line: '#ffffff', accent: '#f28a2e', glow: '#ffffff', glowStrength: 0, shadow: 0.45, tone: '#ffffff' },
-    light: { key: '#fff0d0', keyIntensity: 3.1, fill: '#f3e2c0', bounce: '#c9a66a', rim: '#fff4dc', fillIntensity: 0.95 },
+    // Cool sky fill and a weak rim, so the dancers sit in the same hard sunlight as the scenery.
+    light: { key: '#fff0d0', keyIntensity: 3.1, fill: '#cfe0f5', bounce: '#c9a66a', rim: '#fff4dc', rimIntensity: 1.5, fillIntensity: 0.95 },
   }),
   preset({
     id: 'ocean',
