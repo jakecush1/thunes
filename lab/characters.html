@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Thunes lab: characters</title>
+    <link rel="icon" href="data:," />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #3b3e48;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Dev-only contact sheet of the built-in characters.
+        ?rows=pose:view,pose:view,…   one band per entry (default "rest:front")
+            poses: rest armsDown bend90 bend140 squat twist bow headTurn overhead
+            views: front three side back
+        ?only=robot,toy               show a subset (slugs of the builtin ids)
+        ?cols=squat,bow,twist         repeat the first selected character once per pose;
+                                      the pose part of each rows entry is then ignored
+        ?spacing=2                    metres between characters
+        ?skeleton=1                   draw the bones on top
+        ?fit=0.8&lookY=0.2            close-up: visible height in metres and the height looked at
+    -->
+    <canvas id="view"></canvas>
+    <script type="module" src="./characters.ts"></script>
+  </body>
+</html>

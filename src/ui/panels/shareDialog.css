@@ -1,0 +1,19 @@
+/* Share dialog (panels/shareDialog.ts). */
+.share-dialog .modal__body { display: grid; gap: var(--sp-3); }
+.share-dialog__row { display: flex; gap: var(--sp-2); align-items: center; min-width: 0; }
+.share-dialog__field { flex: 1 1 auto; min-width: 0; }
+.share-dialog__field input { font-family: var(--font-mono); font-size: var(--fs-sm); text-overflow: ellipsis; }
+.share-dialog__copy { flex: none; min-width: 104px; }
+.share-dialog__meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--sp-1) var(--sp-3); min-height: 1.3em; }
+.share-dialog__length, .share-dialog__status { margin: 0; color: var(--text-2); font-size: var(--fs-sm); }
+.share-dialog__length { font-variant-numeric: tabular-nums; }
+.share-dialog__length.is-long { color: var(--warn-text); }
+.share-dialog__status { color: var(--ok); }
+.share-dialog__warning[hidden], .share-dialog__error[hidden] { display: none; }
+.share-dialog__error {
+  margin: 0; padding: var(--sp-2) 10px; border-radius: var(--r-sm);
+  background: var(--danger-bg); color: var(--danger-text); font-size: var(--fs-sm);
+}
+@media (max-width: 520px) {
+  .share-dialog__row { flex-direction: column; align-items: stretch; }
+}

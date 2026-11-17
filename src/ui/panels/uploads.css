@@ -1,0 +1,26 @@
+/* Window-wide drop overlay (panels/uploads.ts). Visual only: drops are handled on the window. */
+.ui-overlay > .uploads {
+  position: fixed; inset: 0; z-index: 1;
+  display: grid; place-items: center;
+  padding: var(--sp-6);
+  pointer-events: none;
+  background: rgb(6 5 13 / 0.55);
+  box-shadow: inset 0 0 0 3px var(--cyan), inset 0 0 80px rgb(34 217 255 / 0.25);
+  animation: uploads-in var(--dur-base) var(--ease-out);
+}
+.uploads[hidden] { display: none; }
+.uploads__card {
+  display: grid; justify-items: center; gap: var(--sp-2);
+  max-width: 420px; padding: var(--sp-6) var(--sp-8);
+  border: 2px dashed var(--cyan); border-radius: var(--r-xl);
+  background: var(--glass-sheen), var(--glass-bg-strong);
+  color: var(--text-2); text-align: center; line-height: var(--lh-snug);
+  box-shadow: var(--shadow-3);
+}
+.uploads__icon {
+  display: grid; place-items: center;
+  width: 56px; height: 56px; border-radius: 18px;
+  background: var(--lit-bg); box-shadow: var(--lit-ring); color: var(--text-1);
+}
+.uploads__title { color: var(--text-1); font: var(--fw-bold) var(--fs-xl) / var(--lh-tight) var(--font-display); }
+@keyframes uploads-in { from { opacity: 0; } to { opacity: 1; } }

@@ -1,0 +1,53 @@
+{
+  "format": "thunes-dance@1",
+  "beats": 8,
+  "bpm": 110,
+  "description": "Step-touch: step to the left, close the right foot, step to the right, close the left foot. A finger-snap lift of both arms on beat six. Edit the numbers, save, and the page reloads with your version.",
+  "base": {
+    "hips.crouch": 0.03,
+    "spine.lean": 4,
+    "head.level": 0.7,
+    "arms.raise": 14,
+    "arms.elbow": 40,
+    "arms.twist": -10,
+    "feet.turn": 8
+  },
+  "tracks": [
+    {
+      "control": "leftFoot.side",
+      "repeat": 4,
+      "mirror": 2,
+      "keys": [[0, -0.15, "inOut"], [1, 0.15, "inOut"], [3, 0.15]]
+    },
+    {
+      "control": "leftFoot.up",
+      "repeat": 4,
+      "mirror": 2,
+      "keys": [[0, 0, "in"], [0.5, 0.07, "out"], [1, 0, "in"], [3, 0], [3.5, 0.05, "out"]]
+    },
+    {
+      "control": "hips.shift",
+      "repeat": 4,
+      "keys": [[0, -0.12, "out"], [1, 0.08, "inOut"], [2, 0.12, "out"], [3, -0.08, "inOut"]]
+    },
+    {
+      "control": "arms.raise",
+      "keys": [[0, 0], [5, 0], [6, 60, "out"], [7, 0, "inOut"]]
+    },
+    {
+      "control": "arms.elbow",
+      "keys": [[0, 0], [5, 0], [6, 45, "out"], [7, 0, "inOut"]],
+      "lag": 0.1
+    }
+  ],
+  "oscillators": [
+    { "control": "hips.crouch", "wave": "bounce", "amp": -0.03, "bias": 0.03, "period": 1 },
+    { "control": "hips.roll", "amp": 4, "period": 4, "phase": 1 },
+    { "control": "spine.side", "amp": 5, "period": 4, "phase": 1.2 },
+    { "control": "spine.twist", "amp": 7, "period": 4, "phase": 0.5 },
+    { "control": "leftArm.swing", "amp": 16, "period": 4, "mirror": 2 },
+    { "control": "head.tilt", "amp": 4, "period": 4, "phase": 1.4 },
+    { "control": "head.nod", "wave": "bounce", "amp": -5, "bias": 4, "period": 1, "lag": 0.1 }
+  ],
+  "smooth": { "hips.shift": 0.25 }
+}

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Thunes lab: audio</title>
+    <link rel="icon" href="data:," />
+    <style>
+      html, body { margin: 0; background: #0d0d12; color: #dcdce6; font: 12px/1.4 ui-monospace, Menlo, monospace; }
+      main { padding: 10px 14px 30px; width: 1250px; }
+      h1 { font-size: 14px; margin: 4px 0 8px; }
+      .row { display: grid; grid-template-columns: 236px 1000px; gap: 10px; margin-bottom: 10px; align-items: start; }
+      .meta b { font-size: 13px; color: #fff; }
+      .meta button { font: inherit; margin: 4px 4px 4px 0; padding: 2px 8px; }
+      .stats { color: #9aa; white-space: pre; font-size: 10.5px; }
+      .bad { color: #ff7a7a; }
+      canvas { display: block; background: #000; width: 1000px; }
+      .wave { height: 44px; margin-bottom: 2px; }
+      .spec { height: 150px; }
+      #engine { margin: 14px 0; padding: 8px; border: 1px solid #334; }
+      #engine select, #engine button, #engine input { font: inherit; }
+      #readout { white-space: pre; color: #9c9; margin-top: 6px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Audio lab: built-in songs (waveform, spectrogram 40 Hz – 16 kHz log, beat grid ticks)</h1>
+      <div id="songs"></div>
+      <div id="engine">
+        <b>Engine</b>
+        <button id="unlock">unlock</button>
+        <select id="song"></select>
+        <label><input id="mute" type="checkbox" /> mute</label>
+        <label>volume <input id="volume" type="range" min="0" max="1" step="0.01" value="0.8" /></label>
+        <div id="readout">locked</div>
+      </div>
+    </main>
+    <script type="module" src="./audio.ts"></script>
+  </body>
+</html>

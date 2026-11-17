@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "e2e": "node scripts/e2e/smoke.mjs"
+    "e2e": "node scripts/e2e/smoke.mjs",
+    "e2e:all": "for s in smoke stage characters dances audio dancers assets ui-shell ui-inspector ui-panels; do echo \"== $s\" && node scripts/e2e/$s.mjs || exit 1; done"
   },
   "dependencies": {
     "three": "^0.187.0"

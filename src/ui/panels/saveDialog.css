@@ -1,0 +1,36 @@
+/* Save dialog (panels/saveDialog.ts). */
+.save-dialog .modal__body { display: grid; gap: var(--sp-4); }
+.save-dialog__name { position: relative; }
+.save-dialog__count {
+  position: absolute; top: 2px; right: 0;
+  color: var(--text-3); font: var(--fw-medium) var(--fs-xs) / 1 var(--font-mono); font-variant-numeric: tabular-nums;
+}
+.save-dialog__section { display: grid; gap: var(--sp-2); }
+.save-dialog__covers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-3); }
+.save-dialog__cover { position: relative; display: grid; gap: 6px; cursor: pointer; min-width: 0; }
+.save-dialog__frame {
+  display: block; overflow: hidden;
+  aspect-ratio: 16 / 9; border-radius: var(--r-md);
+  background: var(--well);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: box-shadow var(--dur-fast), transform var(--dur-fast);
+}
+.save-dialog__img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.save-dialog__cover.is-empty .save-dialog__img { visibility: hidden; }
+.save-dialog__cover.is-empty { cursor: default; opacity: 0.5; }
+.save-dialog__caption { color: var(--text-2); font-size: var(--fs-sm); text-align: center; }
+.save-dialog__cover:hover .save-dialog__frame { box-shadow: inset 0 0 0 1px var(--line-strong); }
+.save-dialog__cover:has(input:checked) .save-dialog__frame {
+  box-shadow: 0 0 0 2px var(--ink-900), 0 0 0 4px #fff, 0 0 18px 3px rgb(34 217 255 / 0.5);
+}
+.save-dialog__cover:has(input:checked) .save-dialog__caption { color: var(--text-1); font-weight: var(--fw-semi); }
+.save-dialog__cover:has(input:focus-visible) .save-dialog__frame { outline: 2px solid var(--focus); outline-offset: 5px; }
+.save-dialog__error {
+  margin: 0; padding: var(--sp-2) 10px; border-radius: var(--r-sm);
+  background: var(--danger-bg); color: var(--danger-text); font-size: var(--fs-sm);
+}
+.save-dialog__error[hidden] { display: none; }
+@media (max-width: 520px) {
+  .save-dialog__covers { gap: var(--sp-2); }
+  .save-dialog__caption { font-size: var(--fs-xs); }
+}

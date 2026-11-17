@@ -1,0 +1,27 @@
+/* Picker additions on top of the design system (layout.css holds .picker__search / .picker__chips). */
+
+/* Uploaded entries: the card plus a delete button in its corner */
+.picker__item { position: relative; display: grid; min-width: 0; }
+.picker__item > .card { min-width: 0; }
+.picker__delete {
+  position: absolute; top: 6px; left: 6px; z-index: 1;
+  background: var(--ink-800); box-shadow: inset 0 0 0 1px var(--line-strong);
+  opacity: 0.85;
+}
+.picker__delete:hover, .picker__delete:focus-visible { opacity: 1; color: var(--danger, #ff5a6e); }
+
+/* Upload report above the grid */
+.picker__report {
+  margin-bottom: var(--sp-3); padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--fill-1); box-shadow: inset 0 0 0 1px var(--line);
+}
+.picker__report-head { display: flex; align-items: center; gap: var(--sp-2); }
+.picker__report-head strong { flex: 1; min-width: 0; font-weight: var(--fw-semi); }
+.picker__report-list { margin: var(--sp-1) 0 0; padding-left: 26px; color: var(--text-2); font-size: var(--fs-sm); }
+.picker__report-list li { overflow-wrap: anywhere; }
+.picker__report-list--problems b { color: var(--text-1); font-weight: var(--fw-semi); }
+
+/* The second header row only holds the chips: let them use the full width */
+.picker .picker__chips { min-width: 0; }
+.picker .modal__body > .tabpanel { padding: 0; }

@@ -13,7 +13,7 @@ export const APP_TAGLINE = 'Build a crew. Pick a beat. Let them dance.';
 export const MAX_DANCERS = 8;
 
 /** Dancers can be placed within this distance (metres) of the stage centre. */
-export const STAGE_RADIUS = 12;
+export const STAGE_RADIUS = 6;
 
 /** Every character is scaled to this height (metres) unless its definition says otherwise. */
 export const CHARACTER_HEIGHT = 1.75;
@@ -87,7 +87,7 @@ export const SCENE_FIELDS = {
   exposure: { min: 0.2, max: 2.5, step: 0.01, default: 1, unit: '×', digits: 2 },
   fog: { min: 0, max: 1, step: 0.01, default: 0.2, unit: '', digits: 2 },
   strobeIntensity: { min: 0, max: 1, step: 0.01, default: 0, unit: '', digits: 2 },
-  strobeBpm: { min: 30, max: 480, step: 1, default: 240, unit: 'bpm', digits: 0 },
+  strobeBpm: { min: 30, max: 180, step: 1, default: 120, unit: 'bpm', digits: 0 },
   cameraLoopPeriod: { min: 4, max: 120, step: 1, default: 24, unit: 's', digits: 0 },
   cameraLoopHeight: { min: 0.2, max: 12, step: 0.1, default: 2.2, unit: 'm', digits: 1 },
   cameraLoopTargetHeight: { min: 0, max: 4, step: 0.1, default: 1, unit: 'm', digits: 1 },
@@ -101,7 +101,7 @@ export const AUDIO_FIELDS = {
 /** Camera distance limits for free orbiting (metres). */
 export const CAMERA_LIMITS = { minDistance: 1.5, maxDistance: 40, fov: 45, near: 0.1, far: 400 } as const;
 
-export const DEFAULT_CAMERA: CameraPose = { position: [0, 1.9, 8.2], target: [0, 1, 0] };
+export const DEFAULT_CAMERA: CameraPose = { position: [0, 1.9, 7.5], target: [0, 1, 0] };
 
 /** Everything about a dancer except its identity and which character/dance it uses. */
 export const DANCER_DEFAULTS: DancerSettings = {
@@ -166,4 +166,5 @@ export const UI_DEFAULTS: UiState = {
   uiHidden: false,
   entered: false,
   strobeAllowed: false,
+  viewOnly: false,
 };

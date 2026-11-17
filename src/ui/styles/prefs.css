@@ -1,0 +1,29 @@
+/* User preferences: reduced motion, reduced transparency, more contrast. Loaded last. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .slot:hover, .card:hover, .slot.is-selected { transform: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-bg: rgb(17 13 34 / 0.97);
+    --glass-bg-strong: rgb(11 9 24 / 0.99);
+    --glass-filter: none;
+    --glass-filter-strong: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --glass-bg: rgb(11 9 24 / 0.96);
+    --text-2: #e6e1f8;
+    --text-3: #d3cdee;
+    --line: rgb(255 255 255 / 0.3);
+    --line-strong: rgb(255 255 255 / 0.5);
+  }
+}

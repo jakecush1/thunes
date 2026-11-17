@@ -1,0 +1,174 @@
+/* ==========================================================================
+   Shell: app states, splash, view-only bar, overlays, dialog sizes, and the
+   pieces the components add on top of the ported design (thumbnails, slider
+   type-in, toast kinds, custom swatch state, about dialog).
+   ========================================================================== */
+
+/* --- App states -------------------------------------------------------- */
+.ui-root.is-splash .hud,
+.ui-root.is-splash .viewonly,
+.ui-root.is-view-only .hud { display: none; }
+
+.ui-overlay { position: fixed; inset: 0; z-index: var(--z-modal); pointer-events: none; }
+.ui-overlay > * { pointer-events: auto; }
+.modal { pointer-events: auto; }
+.toast-stack { position: fixed; }
+
+/* The empty-stage hint is informational: the stage underneath stays draggable. */
+.hud__stage > .hint-card { pointer-events: none; }
+
+/* --- Splash -------------------------------------------------------------- */
+.splash {
+  position: fixed; inset: 0; z-index: 30;
+  display: grid; place-items: center;
+  padding: max(var(--sp-6), env(safe-area-inset-top)) var(--sp-6) max(var(--sp-6), env(safe-area-inset-bottom));
+  /* Dim and blur the live stage so the title stays legible over the dancers. */
+  background:
+    radial-gradient(90% 70% at 50% 45%, rgb(11 9 24 / 0.4), rgb(6 5 13 / 0.85) 80%),
+    linear-gradient(180deg, rgb(6 5 13 / 0.35), rgb(6 5 13 / 0.6));
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(14px) saturate(1.1);
+  pointer-events: auto;
+  animation: fade-in var(--dur-slow) linear;
+}
+/* Low-cost mode (Quality: Low / no blur support): dim harder instead of blurring. */
+:root[data-glass="off"] .splash { -webkit-backdrop-filter: none; backdrop-filter: none; background-color: rgb(6 5 13 / 0.55); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .splash { background-color: rgb(6 5 13 / 0.55); }
+}
+.splash__inner { display: grid; justify-items: center; gap: var(--sp-4); max-width: 640px; text-align: center; }
+.splash__title { font-size: var(--fs-display); gap: 0.12em; letter-spacing: -0.035em; filter: drop-shadow(0 6px 30px rgb(164 92 255 / 0.45)); }
+.splash__title .wordmark__mark { height: 0.62em; gap: 0.06em; }
+.splash__title .wordmark__mark i { width: 0.11em; border-radius: 0.05em; }
+.splash__tagline { max-width: 30ch; text-wrap: balance; font-size: var(--fs-2xl); font-weight: var(--fw-semi); line-height: var(--lh-snug); color: var(--text-1); text-shadow: 0 2px 18px rgb(6 5 13 / 0.8); }
+.splash__note {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  padding: 6px var(--sp-3);
+  border-radius: var(--r-pill);
+  background: var(--glass-bg-strong); box-shadow: inset 0 0 0 1px var(--line-strong);
+  color: var(--text-1); font-weight: var(--fw-semi);
+}
+.splash__enter { margin-top: var(--sp-2); min-width: 180px; }
+.splash__fine { display: inline-flex; text-wrap: balance; align-items: center; gap: var(--sp-2); color: var(--text-2); font-size: var(--fs-sm); text-shadow: 0 1px 8px rgb(6 5 13 / 0.9); }
+@media (max-width: 820px) {
+  .splash__tagline { font-size: var(--fs-xl); }
+  .splash__fine { max-width: 30ch; }
+}
+
+/* --- View-only bar ---------------------------------------------------------- */
+.viewonly {
+  position: fixed; z-index: var(--z-hud);
+  top: max(var(--hud-pad), env(safe-area-inset-top)); left: max(var(--hud-pad), env(safe-area-inset-left));
+  right: max(var(--hud-pad), env(safe-area-inset-right));
+  display: none; justify-content: flex-start;
+  pointer-events: none;
+}
+.ui-root.is-view-only:not(.is-ui-hidden) .viewonly { display: flex; }
+.viewbar { pointer-events: auto; gap: var(--sp-2); padding-left: var(--sp-3); max-width: 100%; min-width: 0; }
+.viewbar__text { display: grid; min-width: 0; margin-right: var(--sp-2); line-height: 1.2; }
+.viewbar__kicker { font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; }
+.viewbar__title { max-width: 320px; font-weight: var(--fw-semi); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 820px) {
+  .viewbar .wordmark__text { display: none; }
+  .viewbar__title { max-width: none; }
+  .viewbar__text { flex: 1 1 auto; }
+}
+
+/* --- Dialog sizes --------------------------------------------------------------- */
+.modal--sm .modal__dialog { width: min(440px, 100%); height: auto; max-height: 100%; }
+.modal--md .modal__dialog { width: min(640px, 100%); height: auto; max-height: min(760px, 100%); }
+.modal__title { flex: 1 1 auto; min-width: 0; font-size: var(--fs-xl); font-weight: var(--fw-bold); line-height: var(--lh-tight); }
+.modal__close { margin-left: auto; }
+.modal__text { color: var(--text-2); line-height: var(--lh-normal); }
+.modal__text + .modal__text { margin-top: var(--sp-2); }
+.modal--confirm .modal__body { padding-top: var(--sp-3); }
+.modal--sm .modal__foot, .modal--md .modal__foot { justify-content: flex-end; }
+.modal--md .modal__foot .modal__hint { margin-right: auto; }
+.btn--danger-solid { background: var(--danger); color: var(--text-on-accent); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35); }
+.btn--danger-solid:hover { background: var(--danger); filter: brightness(1.08); color: var(--text-on-accent); }
+@media (max-width: 820px) {
+  .modal--sm .modal__dialog, .modal--md .modal__dialog { height: auto; max-height: calc(100dvh - 28px); }
+  .modal--sm .modal__hint, .modal--md .modal__hint { display: none; }
+}
+html.has-modal { overflow: hidden; }
+
+/* --- Thumbnails: an image over a fallback glyph ----------------------------------- */
+.thumb { display: grid; place-items: center; min-width: 0; min-height: 0; }
+.thumb > * { grid-area: 1 / 1; }
+.thumb__img { width: 100%; height: 100%; object-fit: contain; }
+.thumb__fallback { width: auto; height: 62%; aspect-ratio: 1; color: var(--c, var(--text-2)); }
+.slot__thumb { width: 100%; }
+.slot__thumb .thumb__fallback { height: 78%; stroke-width: 1.7; }
+.card__thumb.thumb { place-items: center; }
+.card__thumb .thumb__img { width: 92%; height: 92%; }
+.card__thumb .thumb__fallback { height: 46%; }
+.avatar > .icon { width: 70%; height: 70%; align-self: center; }
+.card-grid__empty { grid-column: 1 / -1; padding: var(--sp-6) 0; color: var(--text-2); text-align: center; }
+
+/* --- Slider row additions ------------------------------------------------------------ */
+.slider-row__label { cursor: default; user-select: none; -webkit-user-select: none; }
+.slider-row__value { cursor: text; user-select: none; -webkit-user-select: none; min-width: 0; }
+.slider-row__value.is-editing { padding: 0; box-shadow: inset 0 0 0 1px var(--focus); }
+.slider-row__edit {
+  width: 100%; min-width: 0; height: 100%; padding: 3px 6px;
+  border: 0; border-radius: var(--r-xs);
+  background: transparent; color: var(--readout);
+  font: inherit; text-align: right;
+}
+.slider-row__edit:focus-visible { outline: none; box-shadow: none; }
+.slider-row.is-disabled, .toggle.is-disabled { opacity: 0.5; }
+
+/* --- Toggle text (label + optional hint) ------------------------------------------------ */
+.toggle__text { display: block; }
+.toggle__label:has(.toggle__hint:not([hidden])) .toggle__text { color: var(--text-1); font-weight: var(--fw-semi); }
+
+/* --- Text field additions --------------------------------------------------------------- */
+.field--plain input { padding-left: var(--sp-3); }
+.field-stack { display: grid; gap: 6px; }
+.field-label { color: var(--text-2); font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+
+/* --- Custom colour swatch state ----------------------------------------------------------- */
+.swatch.is-checked .swatch__chip {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.26), 0 0 0 2px var(--ink-900), 0 0 0 4px #fff, 0 0 16px 3px rgb(34 217 255 / 0.55);
+}
+.swatch--custom.is-checked .swatch__chip::before { background: var(--custom, var(--ink-900)); }
+.swatch--custom input[type="color"] { padding: 0; border: 0; }
+.swatch input:focus-visible ~ .swatch__chip { outline: 2px solid var(--focus); outline-offset: 5px; }
+
+/* --- Toast kinds --------------------------------------------------------------------------- */
+.toast--info .toast__icon { background: rgb(34 217 255 / 0.16); color: var(--cyan); }
+.toast--warn .toast__icon { background: var(--warn-bg); color: var(--warn); }
+.toast--error .toast__icon { background: var(--danger-bg); color: var(--danger); }
+
+/* --- Panels: placeholder copy (stubs) and the dropzone wrapper ------------------------------------ */
+.panel__placeholder { padding: var(--sp-2) 0; color: var(--text-3); }
+.dropzone-wrap { display: block; }
+
+/* --- Toolbar: disabled history buttons stay legible ----------------------------------------------- */
+.toolbar .btn[disabled] { opacity: 0.4; }
+
+/* --- About dialog ---------------------------------------------------------------------------------- */
+.about__text { color: var(--text-2); }
+.about__text + .about__text { margin-top: var(--sp-1); }
+.about__muted { margin-top: var(--sp-2); color: var(--text-3); font-size: var(--fs-sm); }
+.about__keys { display: grid; gap: 2px; margin: 0; }
+.about__key { display: grid; grid-template-columns: minmax(150px, auto) 1fr; align-items: center; gap: var(--sp-3); min-height: 30px; }
+.about__key dt { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.about__key dd { margin: 0; color: var(--text-2); }
+.about__to { color: var(--text-3); font-size: var(--fs-sm); }
+.about__list { display: grid; gap: var(--sp-1); margin-top: var(--sp-2); color: var(--text-2); }
+.about__list strong { color: var(--text-1); font-weight: var(--fw-semi); }
+.about code {
+  padding: 1px 6px; border-radius: var(--r-xs);
+  background: var(--well); color: var(--readout);
+  font: var(--fw-medium) var(--fs-sm) / 1.4 var(--font-mono);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 820px) {
+  .about__key { grid-template-columns: 1fr; gap: 2px; padding: 4px 0; }
+}
+
+/* --- Phone tools sheet: .only-mobile reverts display, so restore the header grid --------------------- */
+@media (max-width: 820px) {
+  .toolbar .sheet__head.only-mobile { display: grid !important; }
+}

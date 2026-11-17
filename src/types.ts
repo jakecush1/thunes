@@ -106,11 +106,11 @@ export interface SceneSettings {
   fog: number;
   /** 0 = off … 1 = full white flashes. */
   strobeIntensity: number;
-  /** Flashes per minute when strobeSync is off. */
+  /** Flashes per minute when strobeSync is off (the stage never exceeds three flashes per second). */
   strobeBpm: number;
   /** Flash on the song's beat instead of at strobeBpm. */
   strobeSync: boolean;
-  /** Flashes per beat when synced. */
+  /** When synced: flash once every this many beats. */
   strobeDivision: 1 | 2 | 4;
   /** Auto-orbiting camera. While on, pointer interaction with the stage is disabled. */
   cameraLoop: boolean;
@@ -146,6 +146,12 @@ export interface UiState {
   entered: boolean;
   /** The viewer has agreed to flashing lights this session. Strobe never runs while false. */
   strobeAllowed: boolean;
+  /**
+   * A shared scene was opened and the visitor has not chosen to edit it yet:
+   * the editing UI is hidden behind a "Remix" button and the stage ignores
+   * selection and dragging (orbiting still works).
+   */
+  viewOnly: boolean;
 }
 
 export interface AppState {
@@ -392,7 +398,11 @@ export interface AssetRegistry {
 
 // — Audio —
 
-/** The shared musical clock, sampled once per frame. */
+/**
+ * The shared musical clock, sampled once per frame.
+ * The engine reuses one snapshot object (and one levels object) between
+ * frames: read the values, do not hold on to the object.
+ */
 export interface ClockSnapshot {
   /** Seconds since the app started; monotonic; keeps running without music. */
   time: number;
@@ -443,6 +453,8 @@ export interface CaptureOptions {
   height?: number;
   type?: 'image/png' | 'image/jpeg' | 'image/webp';
   quality?: number;
+  /** Render from this viewpoint instead of the live camera (the live camera is not moved). */
+  camera?: CameraPose;
 }
 
 /** What the stage needs from the rest of the app. */
@@ -464,6 +476,8 @@ export interface Stage {
   getCameraPose(): CameraPose;
   /** Render the scene as it is now (without selection gizmos) and return a data URL. */
   capture(options?: CaptureOptions): string;
+  /** Restart every dancer's loop from the shared beat, so dancers whose speed was changed fall back in step. */
+  resync(): void;
   /** Frames per second, smoothed. */
   readonly fps: number;
   /** Introspection for tests and debugging. */
@@ -525,4 +539,11 @@ export interface AppServices {
   stage: Stage;
   thumbnails: Thumbnailer;
   library: SceneLibrary;
+  /** How this session began. */
+  startup: {
+    /** The page was opened from a share link and that scene is loaded (the UI starts in view-only mode). */
+    sharedScene: boolean;
+    /** A share link was present but could not be read; the message is fit to show to the user. */
+    shareError: string | null;
+  };
 }

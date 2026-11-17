@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Thunes</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0b0918" />
+    <meta name="description" content="Build a crew, pick a beat and let them dance: a 3D dance party in your browser." />
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0918; color: #f4f1ff; overscroll-behavior: none; }
+      #app { position: fixed; inset: 0; }
+      .stage-host { position: absolute; inset: 0; touch-action: none; }
+      .ui-host { position: absolute; inset: 0; pointer-events: none; }
+      .boot-error { position: absolute; inset: 0; margin: auto; height: fit-content; max-width: 32rem; padding: 1.5rem; text-align: center; font: 16px/1.5 system-ui, sans-serif; }
+    </style>
   </head>
   <body>
     <div id="app"></div>

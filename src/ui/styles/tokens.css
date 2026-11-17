@@ -1,0 +1,174 @@
+/* Design tokens: colour, type, space, radius, shadow, motion, layout, layers.
+   Ported from the Neon club design. Change values here, never hard-code them in components. */
+:root {
+  color-scheme: dark;
+
+  /* --- Colour: ink (opaque surfaces, darkest to lightest) --- */
+  --ink-950: #06050d;
+  --ink-900: #0b0918;
+  --ink-800: #120f25;
+  --ink-700: #1a1634;
+  --ink-600: #251f47;
+  --ink-500: #342c5e;
+
+  /* --- Colour: glass (translucent surfaces over the viewport) --- */
+  --glass-bg: rgb(17 13 34 / 0.8);
+  --glass-bg-strong: rgb(11 9 24 / 0.93);
+  --glass-filter: blur(22px) saturate(1.6) brightness(0.72);
+  --glass-filter-strong: blur(30px) saturate(1.4) brightness(0.6);
+  --glass-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0) 44%);
+  --glass-edge: linear-gradient(115deg, rgb(255 61 154 / 0.7), rgb(164 92 255 / 0.3) 30%, rgb(255 255 255 / 0.12) 55%, rgb(34 217 255 / 0.6));
+  --line: rgb(255 255 255 / 0.12);
+  --line-strong: rgb(255 255 255 / 0.26);
+  --scrim: rgb(5 4 14 / 0.62);
+
+  /* --- Colour: fills that sit on glass --- */
+  --fill-1: rgb(255 255 255 / 0.06);
+  --fill-2: rgb(255 255 255 / 0.11);
+  --fill-3: rgb(255 255 255 / 0.17);
+  --well: rgb(3 2 10 / 0.46);
+  --track: #2b2450;
+
+  /* --- Colour: text --- */
+  --text-1: #f8f5ff;
+  --text-2: #cfc9ea;
+  --text-3: #b1aad3;
+  --text-on-accent: #0d0a1f;
+  --readout: #b9f3ff;
+
+  /* --- Colour: accent --- */
+  --magenta: #ff3d9a;
+  --violet: #a45cff;
+  --cyan: #22d9ff;
+  --accent-grad: linear-gradient(90deg, var(--magenta), var(--violet) 52%, var(--cyan));
+  --accent-grad-v: linear-gradient(0deg, var(--magenta), var(--violet) 52%, var(--cyan));
+  --lit-bg: linear-gradient(135deg, rgb(255 61 154 / 0.3), rgb(164 92 255 / 0.2) 50%, rgb(34 217 255 / 0.3));
+  --lit-ring: inset 0 0 0 1px rgb(255 255 255 / 0.24);
+  --link: #8eeaff;
+
+  /* --- Colour: semantic --- */
+  --ok: #5dffb6;
+  --warn: #ffcf5c;
+  --warn-text: #ffe6ab;
+  --warn-bg: rgb(255 207 92 / 0.11);
+  --danger: #ff6b86;
+  --danger-text: #ffa9b9;
+  --danger-bg: rgb(255 107 134 / 0.16);
+  --focus: #a6f4ff;
+
+  /* --- Type --- */
+  --font-ui: system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif;
+  --font-display: var(--font-ui); /* swap for the self-hosted display face (suggested: Archivo, OFL, wdth 125) */
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
+  --fs-2xs: 0.625rem;   /* 10px  slot labels, pad numbers */
+  --fs-xs: 0.6875rem;   /* 11px  badges, key caps */
+  --fs-sm: 0.75rem;     /* 12px  meta, readouts */
+  --fs-md: 0.8125rem;   /* 13px  controls, body */
+  --fs-lg: 0.9375rem;   /* 15px  panel titles */
+  --fs-xl: 1.125rem;    /* 18px  hint and modal titles */
+  --fs-2xl: 1.5rem;     /* 24px  splash pitch */
+  --fs-display: clamp(3.5rem, 15vw, 9rem);
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semi: 600;
+  --fw-bold: 700;
+  --fw-heavy: 800;
+  --lh-tight: 1.15;
+  --lh-snug: 1.3;
+  --lh-normal: 1.45;
+
+  /* --- Space (4px grid) --- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+
+  /* --- Radius --- */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 22px;
+  --r-pill: 999px;
+
+  /* --- Shadow and glow --- */
+  --shadow-1: 0 2px 8px rgb(0 0 0 / 0.35);
+  --shadow-2: 0 14px 40px rgb(3 2 12 / 0.45), 0 2px 6px rgb(3 2 12 / 0.3);
+  --shadow-3: 0 30px 90px rgb(3 2 12 / 0.7), 0 4px 14px rgb(3 2 12 / 0.4);
+  --glow-accent: 0 0 18px rgb(164 92 255 / 0.45);
+  --glow-magenta: 0 0 16px rgb(255 61 154 / 0.55);
+  --glow-cyan: 0 0 16px rgb(34 217 255 / 0.5);
+  --glow-primary: 0 6px 22px rgb(255 61 154 / 0.35), 0 6px 22px rgb(34 217 255 / 0.25);
+
+  /* --- Motion --- */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 360ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --beat: 0.508s; /* 118 BPM; the app overwrites this per track */
+
+  /* --- Layout and density (desktop defaults) --- */
+  --control-h: 36px;
+  --control-h-sm: 28px;
+  --control-h-lg: 48px;
+  --row-h: 30px;
+  --thumb: 16px;
+  --hud-pad: 16px;
+  --hud-gap: 12px;
+  --col-w: 348px;
+  --bar-h: 48px;
+  --slot-w: clamp(44px, calc((100vw - 2 * var(--col-w) - 2 * var(--hud-pad) - 2 * var(--hud-gap) - 72px) / 8), 72px);
+  --slot-h: calc(var(--slot-w) + 14px);
+  --dock-h: calc(var(--slot-h) + 16px);
+
+  /* --- Layers --- */
+  --z-hud: 10;
+  --z-top: 15;
+  --z-sheet: 20;
+  --z-modal: 40;
+  --z-toast: 50;
+  --z-tip: 60;
+}
+
+/* Compact desktop: narrower side columns so the slot bar still fits between them. */
+@media (max-width: 1239px) {
+  :root { --col-w: 304px; }
+}
+
+/* Touch layout: bigger targets, bottom sheets. */
+@media (max-width: 820px) {
+  :root {
+    --control-h: 44px;
+    --control-h-sm: 36px;
+    --row-h: 44px;
+    --thumb: 22px;
+    --hud-pad: 8px;
+    --hud-gap: 8px;
+    --bar-h: 56px;
+    --fs-md: 0.875rem;  /* 14px */
+    --fs-sm: 0.8125rem; /* 13px */
+    --slot-w: 40px;     /* minimum; slots flex to fill the row */
+    --slot-h: 60px;
+    --dock-h: 72px;
+  }
+}
+
+/* Performance / fallback switch: <html data-glass="off"> (wire it to Quality: Low). */
+:root[data-glass="off"] {
+  --glass-bg: rgb(17 13 34 / 0.96);
+  --glass-bg-strong: rgb(11 9 24 / 0.98);
+  --glass-filter: none;
+  --glass-filter-strong: none;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --glass-bg: rgb(17 13 34 / 0.96);
+    --glass-bg-strong: rgb(11 9 24 / 0.98);
+  }
+}
