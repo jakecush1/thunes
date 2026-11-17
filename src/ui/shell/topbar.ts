@@ -3,13 +3,13 @@
  * (undo/redo, save, my scenes, share, snapshot, quality, fullscreen, hide UI,
  * about). On phones the toolbar becomes the "Tools" bottom sheet.
  */
-import { APP_NAME } from '../../config';
+import { BAND } from '../../config';
 import type { InteractionMode, Quality } from '../../types';
 import { createIconButton } from '../components/button';
 import type { IconButtonHandle } from '../components/button';
 import { createSegmented } from '../components/choice';
 import type { UiContext } from '../context';
-import { createScope, h, icon, wordmark } from '../dom';
+import { createScope, externalLink, h, icon, logo } from '../dom';
 import type { IconName } from '../dom';
 import { snapshotFileName } from '../format';
 import { isApplePlatform } from '../shortcuts';
@@ -84,10 +84,12 @@ export function createTopbar(ctx: UiContext): TopbarHandle {
   scope.add(toolsToggle.destroy);
   toolsToggle.el.setAttribute('aria-controls', 'thunes-toolbar');
   toolsToggle.el.setAttribute('aria-expanded', 'false');
+  const brandLink = externalLink(BAND.website, `${BAND.name} website`, logo(BAND.name));
+  brandLink.classList.add('logo-link', 'brandbar__logo');
   const brandbar = h(
     'div',
     { class: 'bar brandbar' },
-    wordmark(APP_NAME),
+    brandLink,
     h('span', { class: 'bar__sep', attrs: { 'aria-hidden': 'true' } }),
     mode.el,
     toolsToggle.el,

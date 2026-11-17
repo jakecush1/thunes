@@ -17,6 +17,7 @@
  *     .ui-overlay                  uploads drop target; modals attach to .ui-root
  *     .splash                      enter screen
  */
+import './styles/fonts.css';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
@@ -47,7 +48,7 @@ import { createTopbar } from './shell/topbar';
 import { watch } from './watch';
 
 /** Accent colours for dancer pads, avatars and cards, by position in the crew. */
-export const DANCER_COLORS = ['#ff7a5c', '#19cdb8', '#ffc13d', '#b08cff', '#4aa8ff', '#ff7ac8', '#b6f24a', '#ffd84d'] as const;
+export const DANCER_COLORS = ['#f28a2e', '#6aa6d8', '#e9b949', '#d9553b', '#9cb15a', '#e59ac0', '#5fb3a6', '#f3e9d2'] as const;
 
 /** Longest side of a snapshot, in pixels. */
 const SNAPSHOT_MAX = 4096;

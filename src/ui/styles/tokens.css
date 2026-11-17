@@ -1,64 +1,76 @@
 /* Design tokens: colour, type, space, radius, shadow, motion, layout, layers.
-   Ported from the Neon club design. Change values here, never hard-code them in components. */
+   Look: The Thunes' gig posters and film photos (thethunes.com, @the.thunes):
+   warm ink, cream paper, burnt orange, barn red, mustard; flat print colour,
+   no neon or glow. Change values here, never hard-code them in components. */
 :root {
   color-scheme: dark;
 
-  /* --- Colour: ink (opaque surfaces, darkest to lightest) --- */
-  --ink-950: #06050d;
-  --ink-900: #0b0918;
-  --ink-800: #120f25;
-  --ink-700: #1a1634;
-  --ink-600: #251f47;
-  --ink-500: #342c5e;
+  /* --- Colour: ink (opaque surfaces, darkest to lightest; warm near-blacks) --- */
+  --ink-950: #0e0b09;
+  --ink-900: #161210;
+  --ink-800: #1e1915;
+  --ink-700: #29221c;
+  --ink-600: #362d25;
+  --ink-500: #483c31;
 
-  /* --- Colour: glass (translucent surfaces over the viewport) --- */
-  --glass-bg: rgb(17 13 34 / 0.8);
-  --glass-bg-strong: rgb(11 9 24 / 0.93);
-  --glass-filter: blur(22px) saturate(1.6) brightness(0.72);
-  --glass-filter-strong: blur(30px) saturate(1.4) brightness(0.6);
-  --glass-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0) 44%);
-  --glass-edge: linear-gradient(115deg, rgb(255 61 154 / 0.7), rgb(164 92 255 / 0.3) 30%, rgb(255 255 255 / 0.12) 55%, rgb(34 217 255 / 0.6));
-  --line: rgb(255 255 255 / 0.12);
-  --line-strong: rgb(255 255 255 / 0.26);
-  --scrim: rgb(5 4 14 / 0.62);
+  /* --- Colour: poster palette --- */
+  --orange: #f28a2e;   /* primary accent */
+  --red: #d9553b;      /* barn red, like the spray-painted logo */
+  --mustard: #e9b949;
+  --sky: #6aa6d8;      /* film-photo sky */
+  --sage: #9cb15a;
+  --pink: #e59ac0;
+  --cream: #f3e9d2;
+  --accent: var(--orange);
 
-  /* --- Colour: fills that sit on glass --- */
-  --fill-1: rgb(255 255 255 / 0.06);
-  --fill-2: rgb(255 255 255 / 0.11);
-  --fill-3: rgb(255 255 255 / 0.17);
-  --well: rgb(3 2 10 / 0.46);
-  --track: #2b2450;
+  /* --- Colour: surfaces over the viewport (lightly translucent, like printed card) --- */
+  --glass-bg: rgb(24 19 16 / 0.88);
+  --glass-bg-strong: rgb(18 14 12 / 0.95);
+  --glass-filter: blur(12px) saturate(1.05);
+  --glass-filter-strong: blur(18px) saturate(1.05);
+  /* Paper grain over every surface: fractal noise, very faint. */
+  --glass-sheen: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.93 0 0 0 0 0.82 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  --glass-edge: linear-gradient(rgb(243 233 210 / 0.16), rgb(243 233 210 / 0.16));
+  --line: rgb(243 233 210 / 0.12);
+  --line-strong: rgb(243 233 210 / 0.26);
+  --scrim: rgb(10 8 6 / 0.66);
+
+  /* --- Colour: fills that sit on surfaces --- */
+  --fill-1: rgb(243 233 210 / 0.06);
+  --fill-2: rgb(243 233 210 / 0.11);
+  --fill-3: rgb(243 233 210 / 0.17);
+  --well: rgb(8 6 4 / 0.45);
+  --track: #3a3028;
 
   /* --- Colour: text --- */
-  --text-1: #f8f5ff;
-  --text-2: #cfc9ea;
-  --text-3: #b1aad3;
-  --text-on-accent: #0d0a1f;
-  --readout: #b9f3ff;
+  --text-1: #f6eedc;
+  --text-2: #d5c8ad;
+  --text-3: #b3a68c;
+  --text-on-accent: #1c120a;
+  --readout: #f2c46b;
 
-  /* --- Colour: accent --- */
-  --magenta: #ff3d9a;
-  --violet: #a45cff;
-  --cyan: #22d9ff;
-  --accent-grad: linear-gradient(90deg, var(--magenta), var(--violet) 52%, var(--cyan));
-  --accent-grad-v: linear-gradient(0deg, var(--magenta), var(--violet) 52%, var(--cyan));
-  --lit-bg: linear-gradient(135deg, rgb(255 61 154 / 0.3), rgb(164 92 255 / 0.2) 50%, rgb(34 217 255 / 0.3));
-  --lit-ring: inset 0 0 0 1px rgb(255 255 255 / 0.24);
-  --link: #8eeaff;
+  /* --- Colour: accent (flat, printed: the gradient tokens are kept as names only) --- */
+  --accent-grad: linear-gradient(var(--accent), var(--accent));
+  --accent-grad-v: linear-gradient(var(--accent), var(--accent));
+  --lit-bg: rgb(242 138 46 / 0.16);
+  --lit-ring: inset 0 0 0 1px rgb(242 138 46 / 0.6);
+  --link: #f7a95c;
 
   /* --- Colour: semantic --- */
-  --ok: #5dffb6;
-  --warn: #ffcf5c;
-  --warn-text: #ffe6ab;
-  --warn-bg: rgb(255 207 92 / 0.11);
-  --danger: #ff6b86;
-  --danger-text: #ffa9b9;
-  --danger-bg: rgb(255 107 134 / 0.16);
-  --focus: #a6f4ff;
+  --ok: #a9cf7f;
+  --warn: #e9b949;
+  --warn-text: #f4dc9c;
+  --warn-bg: rgb(233 185 73 / 0.12);
+  --danger: #e8664e;
+  --danger-text: #f3a99a;
+  --danger-bg: rgb(232 102 78 / 0.16);
+  --focus: #f2c46b;
 
   /* --- Type --- */
-  --font-ui: system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif;
-  --font-display: var(--font-ui); /* swap for the self-hosted display face (suggested: Archivo, OFL, wdth 125) */
+  --font-ui: "Lexend", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Condensed poster face for titles, tabs, buttons and labels (used in caps). */
+  --font-display: "Oswald", "Arial Narrow", "Roboto Condensed", Impact, sans-serif;
+  --display-tracking: 0.04em;
   --font-mono: ui-monospace, "SF Mono", SFMono-Regular, "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
   --fs-2xs: 0.625rem;   /* 10px  slot labels, pad numbers */
   --fs-xs: 0.6875rem;   /* 11px  badges, key caps */
@@ -88,21 +100,22 @@
   --sp-10: 40px;
 
   /* --- Radius --- */
-  --r-xs: 6px;
-  --r-sm: 10px;
-  --r-md: 14px;
-  --r-lg: 18px;
-  --r-xl: 22px;
+  --r-xs: 3px;
+  --r-sm: 5px;
+  --r-md: 7px;
+  --r-lg: 9px;
+  --r-xl: 11px;
   --r-pill: 999px;
 
-  /* --- Shadow and glow --- */
-  --shadow-1: 0 2px 8px rgb(0 0 0 / 0.35);
-  --shadow-2: 0 14px 40px rgb(3 2 12 / 0.45), 0 2px 6px rgb(3 2 12 / 0.3);
-  --shadow-3: 0 30px 90px rgb(3 2 12 / 0.7), 0 4px 14px rgb(3 2 12 / 0.4);
-  --glow-accent: 0 0 18px rgb(164 92 255 / 0.45);
-  --glow-magenta: 0 0 16px rgb(255 61 154 / 0.55);
-  --glow-cyan: 0 0 16px rgb(34 217 255 / 0.5);
-  --glow-primary: 0 6px 22px rgb(255 61 154 / 0.35), 0 6px 22px rgb(34 217 255 / 0.25);
+  /* --- Shadow (no glows: the glow tokens are kept as names only) --- */
+  --shadow-1: 0 2px 6px rgb(0 0 0 / 0.35);
+  --shadow-2: 0 10px 28px rgb(6 4 2 / 0.42), 0 2px 5px rgb(6 4 2 / 0.3);
+  --shadow-3: 0 26px 70px rgb(6 4 2 / 0.65), 0 4px 12px rgb(6 4 2 / 0.4);
+  --glow-accent: 0 0 #0000;
+  --glow-magenta: 0 0 #0000;
+  --glow-cyan: 0 0 #0000;
+  /* Primary buttons sit on a hard, offset print shadow instead of a glow. */
+  --glow-primary: 2px 2px 0 rgb(8 6 4 / 0.55);
 
   /* --- Motion --- */
   --dur-fast: 120ms;
@@ -161,14 +174,14 @@
 
 /* Performance / fallback switch: <html data-glass="off"> (wire it to Quality: Low). */
 :root[data-glass="off"] {
-  --glass-bg: rgb(17 13 34 / 0.96);
-  --glass-bg-strong: rgb(11 9 24 / 0.98);
+  --glass-bg: rgb(24 19 16 / 0.97);
+  --glass-bg-strong: rgb(18 14 12 / 0.99);
   --glass-filter: none;
   --glass-filter-strong: none;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   :root {
-    --glass-bg: rgb(17 13 34 / 0.96);
-    --glass-bg-strong: rgb(11 9 24 / 0.98);
+    --glass-bg: rgb(24 19 16 / 0.97);
+    --glass-bg-strong: rgb(18 14 12 / 0.99);
   }
 }

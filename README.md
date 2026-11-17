@@ -1,6 +1,6 @@
 # Thunes
 
-A 3D dance party in the browser. Put up to eight dancers on a stage, give each one a character and a dance, pick a song, and tweak everything until it looks right. Built with three.js, TypeScript and Vite, with no UI framework.
+A 3D dance party in the browser for [The Thunes](https://www.thethunes.com/home) ([@the.thunes](https://www.instagram.com/the.thunes/)). Put up to eight dancers on a stage, give each one a character and a dance, pick a song, and tweak everything until it looks right. Built with three.js, TypeScript and Vite, with no UI framework.
 
 Everything you see out of the box is a placeholder generated in code: six characters, twelve dances and six songs. The app is a framework for your own characters, dance animations and music.
 
@@ -19,7 +19,7 @@ npm run preview    # serve the production bundle
 - **Dances.** Each dancer's dance is chosen independently of its character. Any dance plays on any character.
 - **Per-dancer controls.** Position, rotation, scale, speed, phase offset, loop trim, mirror, shine, metal, tint, head/hand/foot size, shake, and a vertex warp effect.
 - **Music.** The drawer at the bottom left lists the songs. Dancers lock to the song's beat (this can be switched off).
-- **Scene.** Fourteen backdrops plus a custom colour, four floor styles, brightness, exposure, fog, strobe and an auto-orbiting camera.
+- **Scene.** Fifteen backdrops plus a custom colour, four floor styles, brightness, exposure, fog, strobe and an auto-orbiting camera.
 - **Look / Grab / Both.** Choose whether dragging orbits the camera, moves dancers, or both.
 - **Save and share.** Scenes are saved in this browser. A share link carries the whole scene in the URL, so no server is needed.
 - **Undo and redo** for everything that changes the scene.
@@ -92,6 +92,13 @@ npm run e2e:all     # every browser script (a few minutes)
 The browser scripts use the Google Chrome installed on the machine; nothing is downloaded.
 
 Some tests exercise real rigged models and are skipped unless `THUNES_FIXTURES` points at a folder containing them (`Xbot.glb`, `Michelle.glb`, `Soldier.glb`, `Samba Dancing.fbx`, `RobotExpressive.glb`, `pirouette.bvh` from the three.js examples). Those files are not part of this repository.
+
+## Look and credits
+
+The look follows the band's own material: their hand-painted logo, the fonts of thethunes.com, and the colours of their gig posters and film photos. Design tokens live in `src/ui/styles/tokens.css`.
+
+- The Thunes logo (`src/ui/brand/thunes-logo.webp`) belongs to The Thunes.
+- Oswald and Lexend (`src/ui/fonts/`) are licensed under the SIL Open Font License 1.1; the licence texts are next to the font files.
 
 ## Known limits
 

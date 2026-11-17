@@ -95,8 +95,11 @@ async function desktop() {
     checks.ok(await visible(page, '.splash'), 'splash is shown before entering');
     checks.ok(!(await visible(page, '.hud')), 'HUD is hidden behind the splash');
     checks.ok(
-      await page.evaluate(() => document.querySelector('.splash h1')?.textContent?.includes('Thunes')),
-      'splash shows the app name',
+      await page.evaluate(() => {
+        const title = document.querySelector('.splash h1.logo');
+        return Boolean(title?.getAttribute('aria-label')?.includes('Thunes')) && title.getBoundingClientRect().height > 100;
+      }),
+      'splash shows the band logo as its (labelled) title',
     );
     checks.ok(await page.evaluate(() => document.activeElement?.classList.contains('splash__enter')), 'Enter button has focus');
     await settle(page);

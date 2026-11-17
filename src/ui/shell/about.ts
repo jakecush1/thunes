@@ -1,8 +1,8 @@
 /** The About and help dialog: what this is, keyboard shortcuts, bring your own assets. */
-import { APP_NAME, APP_TAGLINE, MAX_DANCERS } from '../../config';
+import { APP_NAME, APP_TAGLINE, BAND, MAX_DANCERS } from '../../config';
 import { createModal } from '../components/modal';
 import type { DialogHandle, UiContext } from '../context';
-import { h } from '../dom';
+import { externalLink, h, icon, logo } from '../dom';
 import { isApplePlatform, shortcutList } from '../shortcuts';
 
 export function createAboutDialog(_ctx: UiContext): DialogHandle {
@@ -26,7 +26,26 @@ export function createAboutDialog(_ctx: UiContext): DialogHandle {
     h('li', {}, h('strong', { text: 'Music: ' }), 'an .mp3, .wav, .ogg or .m4a file in ', h('code', { text: 'public/assets/music/' })),
   );
 
+  const bandLinks = h(
+    'p',
+    { class: 'about__links' },
+    externalLink(BAND.website, `${BAND.name} website`, icon('external', 'sm'), BAND.websiteLabel),
+    externalLink(BAND.instagram, `${BAND.name} on Instagram`, icon('instagram', 'sm'), BAND.instagramHandle),
+  );
+  const band = h(
+    'section',
+    { class: 'section about__band' },
+    logo(BAND.name),
+    h(
+      'div',
+      { class: 'about__band-text' },
+      h('p', { class: 'about__text', text: `A dance party by ${BAND.name}. Find their music, shows and videos here:` }),
+      bandLinks,
+    ),
+  );
+
   modal.body.append(
+    band,
     section(
       'What this is',
       h('p', { class: 'about__text', text: `${APP_TAGLINE} Put up to ${MAX_DANCERS} dancers on the floor, give each one a character and a dance, tune how they move and look, set the scene, and share it with a link.` }),
@@ -43,6 +62,6 @@ export function createAboutDialog(_ctx: UiContext): DialogHandle {
   const done = h('button', { class: 'btn btn--primary', attrs: { type: 'button' }, text: 'Got it' });
   done.addEventListener('click', () => modal.close());
   modal.actions.append(done);
-  modal.hint.append(h('span', { text: `${APP_NAME} is an original toy. Have fun.` }));
+  modal.hint.append(h('span', { text: `Logo © ${BAND.name}. Have fun.` }));
   return { open: () => modal.open(), destroy: () => modal.destroy() };
 }

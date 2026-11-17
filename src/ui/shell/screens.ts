@@ -3,10 +3,10 @@
  * bar for shared scenes, the "show controls" button when the UI is hidden, and
  * the empty-stage hint.
  */
-import { APP_NAME, APP_TAGLINE } from '../../config';
+import { APP_TAGLINE, BAND } from '../../config';
 import { createIconButton } from '../components/button';
 import type { UiContext } from '../context';
-import { createScope, h, icon, wordmark } from '../dom';
+import { createScope, externalLink, h, icon, logo } from '../dom';
 import { isFullscreen, toggleFullscreen } from './fullscreen';
 
 export interface ScreenHandle {
@@ -19,9 +19,15 @@ export function createSplash(ctx: UiContext): ScreenHandle {
   const scope = createScope();
   const { audio, store, startup } = ctx.services;
   const enter = h('button', { class: 'btn btn--primary btn--lg splash__enter', attrs: { type: 'button' } }, icon('play', 'sm'), 'Enter');
-  const title = wordmark(APP_NAME, 'h1');
-  title.classList.add('splash__title');
+  const title = logo(`${BAND.name} dance party`, 'h1');
+  title.classList.add('splash__logo');
   title.id = 'thunes-splash-title';
+  const links = h(
+    'p',
+    { class: 'splash__links' },
+    externalLink(BAND.website, `${BAND.name} website`, icon('external', 'sm'), BAND.websiteLabel),
+    externalLink(BAND.instagram, `${BAND.name} on Instagram`, icon('instagram', 'sm'), BAND.instagramHandle),
+  );
   const el = h(
     'div',
     { class: 'splash', attrs: { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'thunes-splash-title', 'aria-describedby': 'thunes-splash-tagline' } },
@@ -33,6 +39,7 @@ export function createSplash(ctx: UiContext): ScreenHandle {
       h('p', { class: 'splash__tagline', attrs: { id: 'thunes-splash-tagline' }, text: APP_TAGLINE }),
       enter,
       h('p', { class: 'splash__fine' }, icon('volume', 'sm'), 'Sound on. Flashing lights stay off unless you switch them on.'),
+      links,
     ),
   );
   let entering = false;
@@ -58,6 +65,8 @@ export function createViewBar(ctx: UiContext): ScreenHandle {
   const scope = createScope();
   const { store } = ctx.services;
   const title = h('span', { class: 'viewbar__title' });
+  const viewLogo = externalLink(BAND.website, `${BAND.name} website`, logo(BAND.name));
+  viewLogo.classList.add('logo-link');
   const remix = h('button', { class: 'btn btn--primary viewbar__remix', attrs: { type: 'button' } }, icon('remix', 'sm'), 'Remix');
   scope.on(remix, 'click', () => {
     store.updateUi({ viewOnly: false });
@@ -80,7 +89,7 @@ export function createViewBar(ctx: UiContext): ScreenHandle {
     h(
       'div',
       { class: 'bar viewbar', attrs: { role: 'region', 'aria-label': 'Shared scene' } },
-      h('span', { class: 'viewbar__brand' }, wordmark(APP_NAME)),
+      h('span', { class: 'viewbar__brand' }, viewLogo),
       h('span', { class: 'bar__sep', attrs: { 'aria-hidden': 'true' } }),
       h('span', { class: 'viewbar__text' }, h('span', { class: 'viewbar__kicker', text: 'Shared scene' }), title),
       remix,

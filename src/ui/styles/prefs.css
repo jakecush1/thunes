@@ -11,8 +11,8 @@
 
 @media (prefers-reduced-transparency: reduce) {
   :root {
-    --glass-bg: rgb(17 13 34 / 0.97);
-    --glass-bg-strong: rgb(11 9 24 / 0.99);
+    --glass-bg: rgb(24 19 16 / 0.97);
+    --glass-bg-strong: rgb(18 14 12 / 0.99);
     --glass-filter: none;
     --glass-filter-strong: none;
   }
@@ -20,10 +20,10 @@
 
 @media (prefers-contrast: more) {
   :root {
-    --glass-bg: rgb(11 9 24 / 0.96);
+    --glass-bg: rgb(18 14 12 / 0.96);
     --text-2: #e6e1f8;
     --text-3: #d3cdee;
-    --line: rgb(255 255 255 / 0.3);
-    --line-strong: rgb(255 255 255 / 0.5);
+    --line: rgb(243 233 210 / 0.3);
+    --line-strong: rgb(243 233 210 / 0.5);
   }
 }

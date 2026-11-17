@@ -28,12 +28,12 @@ svg { display: block; }
   box-shadow: 0 0 0 2px var(--ink-950);
 }
 
-::selection { background: rgb(255 61 154 / 0.45); color: #fff; }
+::selection { background: rgb(242 138 46 / 0.45); color: var(--text-1); }
 
 /* Thin scrollbars inside panels */
 .panel__body, .modal__body, .scroll-y, .scroll-x {
   scrollbar-width: thin;
-  scrollbar-color: rgb(255 255 255 / 0.28) transparent;
+  scrollbar-color: rgb(243 233 210 / 0.28) transparent;
   overscroll-behavior: contain;
 }
 .scroll-x { overflow-x: auto; scrollbar-width: none; }
@@ -66,7 +66,7 @@ svg { display: block; }
 @keyframes level { from { transform: scaleY(0.25); } to { transform: scaleY(1); } }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes beat-glow {
-  0%, 100% { filter: drop-shadow(0 0 0 rgb(164 92 255 / 0)); }
-  50% { filter: drop-shadow(0 0 7px rgb(164 92 255 / 0.75)); }
+  0%, 100% { filter: none; }
+  50% { filter: brightness(1.14); }
 }
 @keyframes nudge { 50% { transform: translateY(5px); } }

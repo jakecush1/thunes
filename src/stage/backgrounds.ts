@@ -123,18 +123,34 @@ function preset(init: PresetInit): BackgroundPreset {
 export const BACKGROUNDS: readonly BackgroundPreset[] = [
   // ── Screen-aligned gradients ──
   preset({
+    // A dim back-room gig: warm haze under red stage light (after The Thunes' show photos).
     id: 'club',
-    name: 'Club Haze',
+    name: 'Back Room',
     kind: 'gradient',
     stops: [
-      [0, '#06040d'],
-      [0.42, '#1a0c36'],
-      [0.64, '#35185f'],
-      [1, '#100822'],
+      [0, '#0b0807'],
+      [0.42, '#1d0f0b'],
+      [0.64, '#3e1c13'],
+      [1, '#150c09'],
     ],
-    fog: '#2b1450',
-    floor: { line: '#b193ff', accent: '#ff4fc3', glow: '#8f6bff', glowStrength: 0.16, shadow: 0.6 },
-    light: { key: '#ffe9f6', fill: '#9a86ff', bounce: '#3a1648', rim: '#ff3fb4', rimIntensity: 4.8, fillIntensity: 0.7 },
+    fog: '#34170f',
+    floor: { line: '#b98258', accent: '#f28a2e', glow: '#d9553b', glowStrength: 0.08, shadow: 0.62 },
+    light: { key: '#fff0dc', fill: '#c9a184', bounce: '#4a1e14', rim: '#f28a2e', rimIntensity: 4.2, fillIntensity: 0.75 },
+  }),
+  preset({
+    // Late light at the lookout: VHS-blue sky down to a peach and gold horizon (after the "Practice" reel).
+    id: 'lookout',
+    name: 'Lookout',
+    kind: 'gradient',
+    stops: [
+      [0, '#2c66ad'],
+      [0.4, '#7fb0dc'],
+      [0.66, '#f0c6a4'],
+      [1, '#e9a656'],
+    ],
+    fog: '#e3b48c',
+    floor: { line: '#fff1dc', accent: '#f28a2e', glow: '#ffd29a', glowStrength: 0.1, shadow: 0.4 },
+    light: { key: '#fff0d8', fill: '#a9c8e8', bounce: '#c98a5a', rim: '#ffb35c', fillIntensity: 0.9 },
   }),
   preset({
     id: 'peach',

@@ -28,11 +28,11 @@ export const FLOOR_COLOR_LABELS: Record<FloorStyle, string> = {
 
 /** Preset floor colours (lower-case hex; the store normalises colours to lower case). */
 export const FLOOR_COLORS: readonly { value: string; name: string }[] = [
-  { value: '#a884ff', name: 'Violet' },
-  { value: '#22d9ff', name: 'Cyan' },
-  { value: '#ff3d9a', name: 'Magenta' },
-  { value: '#b6f24a', name: 'Lime' },
-  { value: '#ffffff', name: 'White' },
+  { value: '#f3e9d2', name: 'Cream' },
+  { value: '#f28a2e', name: 'Orange' },
+  { value: '#d9553b', name: 'Red' },
+  { value: '#e9b949', name: 'Mustard' },
+  { value: '#6aa6d8', name: 'Sky' },
 ];
 
 /** Swatch value standing for floorColor === null. */

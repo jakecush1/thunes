@@ -1,0 +1,23 @@
+/* Self-hosted fonts (Latin subset, variable weight). Both are the typefaces of
+   thethunes.com and are licensed under the SIL Open Font License 1.1: see
+   src/ui/fonts/OFL-*.txt. */
+
+/* Oswald: condensed gig-poster headings, buttons and labels. */
+@font-face {
+  font-family: "Oswald";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("../fonts/oswald-latin.woff2") format("woff2");
+}
+
+/* Lexend: body text. Scaled to the width of the system UI font the layout was
+   designed with, so labels and readouts keep fitting their boxes. */
+@font-face {
+  font-family: "Lexend";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  size-adjust: 96%;
+  src: url("../fonts/lexend-latin.woff2") format("woff2");
+}

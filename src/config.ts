@@ -9,6 +9,15 @@ import type { AudioSettings, CameraPose, DancerSettings, SceneSettings, UiState 
 export const APP_NAME = 'Thunes';
 export const APP_TAGLINE = 'Build a crew. Pick a beat. Let them dance.';
 
+/** The band behind the app: its logo is the app's brand mark. */
+export const BAND = {
+  name: 'The Thunes',
+  website: 'https://www.thethunes.com/home',
+  websiteLabel: 'thethunes.com',
+  instagram: 'https://www.instagram.com/the.thunes/',
+  instagramHandle: '@the.thunes',
+} as const;
+
 /** Maximum number of dancers on stage at once. */
 export const MAX_DANCERS = 8;
 

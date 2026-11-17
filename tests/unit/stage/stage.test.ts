@@ -32,12 +32,12 @@ describe('colour helpers', () => {
 });
 
 describe('background presets', () => {
-  it('has about 14 presets with unique ids and the expected mix of kinds', () => {
-    expect(BACKGROUNDS.length).toBe(14);
+  it('has about 15 presets with unique ids and the expected mix of kinds', () => {
+    expect(BACKGROUNDS.length).toBe(15);
     expect(new Set(BACKGROUNDS.map((p) => p.id)).size).toBe(BACKGROUNDS.length);
     expect(new Set(BACKGROUNDS.map((p) => p.name)).size).toBe(BACKGROUNDS.length);
     const count = (kind: string) => BACKGROUNDS.filter((p) => p.kind === kind).length;
-    expect(count('gradient')).toBe(7);
+    expect(count('gradient')).toBe(8);
     expect(count('sky')).toBe(4);
     expect(count('solid')).toBe(3);
   });

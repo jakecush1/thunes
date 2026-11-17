@@ -130,11 +130,11 @@ export function mountScene(ctx: UiContext, host: HTMLElement): PanelHandle {
       labelledBy: floorColorLabelId,
       layout: 'row',
       options: [
-        { value: AUTO_FLOOR, name: 'Auto (matches the backdrop)', swatch: '#a884ff' },
+        { value: AUTO_FLOOR, name: 'Auto (matches the backdrop)', swatch: '#f28a2e' },
         ...FLOOR_COLORS.map((c) => ({ value: c.value, name: c.name, swatch: c.value })),
       ],
       value: scene().floorColor ?? AUTO_FLOOR,
-      custom: { label: 'Custom floor colour', color: scene().floorColor ?? '#a884ff' },
+      custom: { label: 'Custom floor colour', color: scene().floorColor ?? '#f28a2e' },
       className: 'scene__floor-colours',
       onChange: (value) => store.updateScene({ floorColor: value === AUTO_FLOOR ? null : value }),
       onCustom: (color, transient) => store.updateScene({ floorColor: color }, { transient }),
@@ -272,7 +272,7 @@ export function mountScene(ctx: UiContext, host: HTMLElement): PanelHandle {
         floorColors.set(s.floorColor ?? AUTO_FLOOR);
         floorColorLabel.textContent = FLOOR_COLOR_LABELS[s.floorStyle];
         floorColorRow.hidden = s.floorStyle === 'none';
-        autoChipFace?.style.setProperty('--sw', custom ? '#a884ff' : preset.floor.line);
+        autoChipFace?.style.setProperty('--sw', custom ? '#f28a2e' : preset.floor.line);
         for (const [key, handle] of sliders) handle.set(s[key]);
         strobeSync.set(s.strobeSync);
         division.set(String(s.strobeDivision) as '1' | '2' | '4');

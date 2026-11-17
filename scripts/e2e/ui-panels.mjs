@@ -258,8 +258,8 @@ async function desktop() {
     await page.click('.drawer.scene .seg__item:has(input[value="checker"])');
     checks.ok((await state(page)).scene.floorStyle === 'checker', 'floor style switch');
     checks.ok((await page.textContent('.scene__floor-row .field-row__label')) === 'Square colour', 'floor colour label follows the style');
-    await page.click('.drawer.scene label.swatch:has(input[value="#22d9ff"])');
-    checks.ok((await state(page)).scene.floorColor === '#22d9ff', 'floor colour swatch');
+    await page.click('.drawer.scene label.swatch:has(input[value="#6aa6d8"])');
+    checks.ok((await state(page)).scene.floorColor === '#6aa6d8', 'floor colour swatch');
     await page.click('.drawer.scene label.swatch:has(input[value="auto"])');
     checks.ok((await state(page)).scene.floorColor === null, '"auto" floor colour is null');
     for (const [label, key] of [

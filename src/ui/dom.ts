@@ -145,6 +145,8 @@ const ICON_PATHS = {
   save: '<path d="M7.5 4h9A1.5 1.5 0 0 1 18 5.5V20l-6-4.2L6 20V5.5A1.5 1.5 0 0 1 7.5 4z"/>',
   library:
     '<rect x="4" y="4" width="7" height="7" rx="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.8"/>',
+  external: '<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>',
+  instagram: '<rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.9" cy="7.1" r="0.6" fill="currentColor" stroke="none"/>',
   link: '<path d="M10.5 13.5a4 4 0 0 0 5.7 0l2.6-2.6a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M13.5 10.5a4 4 0 0 0-5.7 0l-2.6 2.6a4 4 0 0 0 5.7 5.7l1-1"/>',
   camera: '<path d="M4 9a2 2 0 0 1 2-2h1.6l1.3-2h6.2l1.3 2H18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.4"/>',
   fullscreen: '<path d="M4.5 9V4.5H9M19.5 9V4.5H15M4.5 15v4.5H9M19.5 15v4.5H15"/>',
@@ -221,10 +223,22 @@ export function setIcon(svg: SVGSVGElement, name: IconName): void {
   svg.firstElementChild?.setAttribute('href', `#i-${name}`);
 }
 
-/** The three-bar logo mark plus the app name, as in the design. */
+/** The app name in the display face (a text fallback where the logo does not fit). */
 export function wordmark(name: string, tag: 'span' | 'h1' = 'span'): HTMLElement {
-  const mark = h('span', { class: 'wordmark__mark', attrs: { 'aria-hidden': 'true' } }, h('i'), h('i'), h('i'));
-  return h(tag, { class: 'wordmark' }, mark, h('span', { class: 'wordmark__text', text: name }));
+  return h(tag, { class: 'wordmark' }, h('span', { class: 'wordmark__text', text: name }));
+}
+
+/**
+ * The Thunes' hand-painted logo (a CSS mask, so it takes the colour of
+ * `--logo-color`). `label` names it for assistive technology.
+ */
+export function logo(label: string, tag: 'span' | 'h1' = 'span'): HTMLElement {
+  return h(tag, { class: 'logo', attrs: { role: 'img', 'aria-label': label } });
+}
+
+/** A link that opens in a new tab and says so to screen readers. */
+export function externalLink(href: string, label: string, ...children: Child[]): HTMLAnchorElement {
+  return h('a', { attrs: { href, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `${label} (opens in a new tab)` } }, ...children);
 }
 
 /** True when the touch layout (bottom sheets) is active. Matches the CSS breakpoint. */
